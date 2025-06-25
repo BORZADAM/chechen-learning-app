@@ -1,0 +1,2532 @@
+<!DOCTYPE html>
+<html lang="ce">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>1ilm - Chechen Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #5a67d8;
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px auto;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            padding: 15px 30px;
+            background: white;
+            color: #5a67d8;
+            border: 2px solid #5a67d8;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: #5a67d8;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(90, 103, 216, 0.3);
+        }
+
+        .nav-button.active {
+            background: #5a67d8;
+            color: white;
+        }
+
+        .reset-button {
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .reset-button:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .refresh-page-button {
+            padding: 10px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: rgba(90, 103, 216, 0.1);
+            padding: 10px 15px;
+            border-radius: 30px;
+        }
+
+        .language-selector label {
+            color: #5a67d8;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .language-selector select {
+            padding: 5px 10px;
+            border: 2px solid #5a67d8;
+            border-radius: 15px;
+            background: white;
+            color: #5a67d8;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .language-selector select:hover {
+            background: #5a67d8;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Grid styles */
+        .alphabet-grid, .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .number-groups {
+            margin-bottom: 30px;
+        }
+
+        .number-group-title {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .number-group-title h3 {
+            color: #5a67d8;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        /* Flip card styles */
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 250px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .flip-card:hover .flip-card-front,
+        .flip-card:hover .flip-card-back {
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .flip-card-front {
+            background: white;
+        }
+
+        .flip-card-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .flip-card.learned .flip-card-front {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        /* Letter card content */
+        .chechen-letter {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #5a67d8;
+            line-height: 1;
+        }
+
+        .letter-name {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .latin-equiv {
+            font-size: 1em;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Number card content */
+        .number-digit {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: #5a67d8;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .number-chechen {
+            font-size: 1.8em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .number-pronunciation {
+            font-size: 1.1em;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Back of card styles */
+        .card-image {
+            width: 100px;
+            height: 100px;
+            font-size: 80px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-example {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .word-translation {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .number-visual {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .number-context {
+            font-size: 1.2em;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .audio-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(106, 17, 203, 0.1);
+            border: 2px solid rgba(106, 17, 203, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .flip-card-back .audio-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .audio-btn:hover {
+            background: rgba(106, 17, 203, 0.2);
+            transform: scale(1.1);
+        }
+
+        .audio-btn::after {
+            content: '🔊';
+            font-size: 20px;
+        }
+
+        .flip-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.8em;
+            opacity: 0.6;
+            font-style: italic;
+        }
+
+        .check-mark {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .flip-card.learned .check-mark {
+            display: flex;
+        }
+
+        @media (max-width: 768px) {
+            .alphabet-grid, .numbers-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            .flip-card {
+                height: 220px;
+            }
+            
+            .chechen-letter {
+                font-size: 3em;
+            }
+
+            .number-digit {
+                font-size: 3em;
+            }
+
+            .number-chechen {
+                font-size: 1.4em;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .header-content {
+                justify-content: center;
+            }
+
+            .card-image {
+                width: 80px;
+                height: 80px;
+                font-size: 60px;
+            }
+
+            .language-selector {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #5a67d8;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Game styles */
+        .game-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .game-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #5a67d8;
+            margin-bottom: 10px;
+        }
+
+        .game-description {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            min-height: 400px;
+            display: none;
+        }
+
+        .game-container.active {
+            display: block;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .game-score {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .score-item {
+            background: rgba(90, 103, 216, 0.1);
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            color: #5a67d8;
+        }
+
+        .back-to-menu {
+            padding: 10px 20px;
+            background: #e0e0e0;
+            color: #666;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-menu:hover {
+            background: #d0d0d0;
+            transform: scale(1.05);
+        }
+
+        /* Letter Match Game */
+        .match-game-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .match-letter {
+            font-size: 5em;
+            font-weight: bold;
+            color: #5a67d8;
+            background: rgba(90, 103, 216, 0.1);
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .match-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 400px;
+        }
+
+        .match-option {
+            padding: 20px;
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .match-option:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .match-option.correct {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .match-option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Sound Recognition Game */
+        .sound-game-area {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .sound-button {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            cursor: pointer;
+            font-size: 4em;
+            color: white;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .sound-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(90, 103, 216, 0.3);
+        }
+
+        .sound-button:active {
+            transform: scale(0.95);
+        }
+
+        .sound-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .sound-option {
+            padding: 25px;
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #5a67d8;
+        }
+
+        .sound-option:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        /* Word Building Game */
+        .word-display {
+            font-size: 3em;
+            text-align: center;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        .word-image {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            font-size: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .letter-slots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        .letter-slot {
+            width: 60px;
+            height: 80px;
+            border: 3px dashed #5a67d8;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #5a67d8;
+            background: rgba(90, 103, 216, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .letter-slot.filled {
+            background: rgba(90, 103, 216, 0.2);
+            border-style: solid;
+        }
+
+        .letter-choices {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .letter-choice {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 2px solid #5a67d8;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #5a67d8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .letter-choice:hover {
+            background: #5a67d8;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .letter-choice.used {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .game-message {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+            min-height: 40px;
+        }
+
+        .success-message {
+            color: #4CAF50;
+            font-weight: bold;
+            animation: bounce 0.5s ease;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .continue-button {
+            padding: 15px 40px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .continue-button.show {
+            display: block;
+        }
+
+        .continue-button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        /* Progress stars */
+        .game-progress {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .progress-star {
+            font-size: 2em;
+            color: #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .progress-star.earned {
+            color: #ffc107;
+            animation: starPop 0.5s ease;
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        [dir="rtl"] .header-content {
+            direction: rtl;
+        }
+
+        [dir="rtl"] .language-selector {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .flip-hint {
+            left: 10px;
+            right: auto;
+        }
+
+        [dir="rtl"] .audio-btn {
+            left: 10px;
+            right: auto;
+        }
+
+        [dir="rtl"] .check-mark {
+            right: 10px;
+            left: auto;
+        }
+
+        [dir="rtl"] .reset-button {
+            margin-left: 0;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="header-title">
+                <h1 id="appTitle">1ilm - Нохчийн мотт</h1>
+                <p id="appSubtitle">Бераш нохчийн мотт ӏамо</p>
+            </div>
+            <div class="header-controls">
+                <button class="refresh-page-button" onclick="refreshPage()" title="Refresh Page">
+                    🔄
+                </button>
+                <div class="language-selector">
+                    <label for="languageSelect" id="languageLabel">Мотт:</label>
+                    <select id="languageSelect" onchange="changeLanguage(this.value)">
+                        <option value="ce">Нохчийн</option>
+                        <option value="ru">Русский</option>
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                        <option value="ar">العربية</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Games Section -->
+        <div id="gamesSection" class="section">
+            <div class="game-menu" id="gameMenu">
+                <div class="game-card" onclick="startGame('match')">
+                    <div class="game-icon">🎯</div>
+                    <div class="game-title" id="matchGameTitle">Нийса харжа</div>
+                    <div class="game-description" id="matchGameDesc">Элп тӏе а тӏетаӏийна, цуьнан цӏе харжа</div>
+                </div>
+                <div class="game-card" onclick="startGame('sound')">
+                    <div class="game-icon">🔊</div>
+                    <div class="game-title" id="soundGameTitle">Аз хаза</div>
+                    <div class="game-description" id="soundGameDesc">Аз ладугӏуш, элп харжа</div>
+                </div>
+                <div class="game-card" onclick="startGame('word')">
+                    <div class="game-icon">🔤</div>
+                    <div class="game-title" id="wordGameTitle">Дош кхолла</div>
+                    <div class="game-description" id="wordGameDesc">Элпашкара дешнаш кхолла</div>
+                </div>
+            </div>
+
+            <!-- Match Game Container -->
+            <div class="game-container" id="matchGameContainer">
+                <div class="game-header">
+                    <button class="back-to-menu" onclick="backToGameMenu()">← <span id="backText">Юха</span></button>
+                    <div class="game-score">
+                        <div class="score-item"><span id="scoreLabel">Баллаш:</span> <span id="matchScore">0</span></div>
+                        <div class="score-item"><span id="correctLabel">Нийса:</span> <span id="matchCorrect">0</span>/10</div>
+                    </div>
+                </div>
+                <div class="match-game-area">
+                    <div class="match-letter" id="matchLetter">А</div>
+                    <div class="match-options" id="matchOptions">
+                        <!-- Options will be generated -->
+                    </div>
+                </div>
+                <div class="game-message" id="matchMessage"></div>
+                <div class="game-progress" id="matchProgress">
+                    <span class="progress-star">⭐</span>
+                    <span class="progress-star">⭐</span>
+                    <span class="progress-star">⭐</span>
+                    <span class="progress-star">⭐</span>
+                    <span class="progress-star">⭐</span>
+                </div>
+            </div>
+
+            <!-- Sound Game Container -->
+            <div class="game-container" id="soundGameContainer">
+                <div class="game-header">
+                    <button class="back-to-menu" onclick="backToGameMenu()">← <span class="backText">Юха</span></button>
+                    <div class="game-score">
+                        <div class="score-item"><span class="scoreLabel">Баллаш:</span> <span id="soundScore">0</span></div>
+                        <div class="score-item"><span class="correctLabel">Нийса:</span> <span id="soundCorrect">0</span>/10</div>
+                    </div>
+                </div>
+                <div class="sound-game-area">
+                    <button class="sound-button" onclick="playLetterSound()">🔊</button>
+                    <div class="sound-options" id="soundOptions">
+                        <!-- Options will be generated -->
+                    </div>
+                </div>
+                <div class="game-message" id="soundMessage"></div>
+                <div class="game-progress" id="soundProgress">
+                    <span class="progress-star">⭐</span>
+                    <span class="progress-star">⭐</span>
+                    <span class="progress-star">⭐</span>
+                    <span class="progress-star">⭐</span>
+                    <span class="progress-star">⭐</span>
+                </div>
+            </div>
+
+            <!-- Word Building Game Container -->
+            <div class="game-container" id="wordGameContainer">
+                <div class="game-header">
+                    <button class="back-to-menu" onclick="backToGameMenu()">← <span class="backText">Юха</span></button>
+                    <div class="game-score">
+                        <div class="score-item"><span class="scoreLabel">Баллаш:</span> <span id="wordScore">0</span></div>
+                        <div class="score-item"><span class="correctLabel">Нийса:</span> <span id="wordCorrect">0</span>/5</div>
+                    </div>
+                </div>
+                <div class="word-display" id="wordTranslation">Eagle</div>
+                <div class="word-image" id="wordImage">🦅</div>
+                <div class="letter-slots" id="letterSlots">
+                    <!-- Slots will be generated -->
+                </div>
+                <div class="letter-choices" id="letterChoices">
+                    <!-- Choices will be generated -->
+                </div>
+                <div class="game-message" id="wordMessage"></div>
+                <button class="continue-button" id="continueButton" onclick="nextWord()"><span id="continueText">Кхин дӏа</span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="nav-buttons">
+            <button class="nav-button active" onclick="showSection('alphabet')" id="alphabetBtn">Алфавит</button>
+            <button class="nav-button" onclick="showSection('numbers')" id="numbersBtn">Терахьаш</button>
+            <button class="nav-button" onclick="showSection('games')" id="gamesBtn">Ловзарш</button>
+        </div>
+
+        <!-- Alphabet Section -->
+        <div id="alphabetSection" class="section active">
+            <div class="progress-section">
+                <div class="progress-header">
+                    <h2 id="progressTitle">Хьан кхиам</h2>
+                    <button class="reset-button" onclick="resetProgress('alphabet')" id="resetAlphabetBtn">🔄 Юхадоккху</button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="alphabetProgressBar"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="lettersLearned">0</div>
+                        <div class="stat-label" id="lettersLearnedLabel">Ӏамина элпаш</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">49</div>
+                        <div class="stat-label" id="totalLettersLabel">Массо элпаш</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="streakDays">0</div>
+                        <div class="stat-label" id="streakLabel">Денош</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alphabet-grid" id="alphabetGrid">
+                <!-- Alphabet cards will be generated here -->
+            </div>
+        </div>
+
+        <!-- Numbers Section -->
+        <div id="numbersSection" class="section">
+            <div class="progress-section">
+                <div class="progress-header">
+                    <h2 id="numbersProgressTitle">Терахьийн кхиам</h2>
+                    <button class="reset-button" onclick="resetProgress('numbers')" id="resetNumbersBtn">🔄 Юхадоккху</button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="numbersProgressBar"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="numbersLearned">0</div>
+                        <div class="stat-label" id="numbersLearnedLabel">Ӏамина терахьаш</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">38</div>
+                        <div class="stat-label" id="totalNumbersLabel">Массо терахьаш</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="numbersContent">
+                <!-- Numbers will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Force reload with timestamp to prevent caching
+        if (!window.location.href.includes('nocache')) {
+            window.location.href = window.location.href + (window.location.href.includes('?') ? '&' : '?') + 'nocache=' + new Date().getTime();
+        }
+
+        // Language translations
+        const translations = {
+            ce: {
+                appTitle: '1ilm - Нохчийн мотт',
+                appSubtitle: 'Бераш нохчийн мотт ӏамо',
+                language: 'Мотт:',
+                alphabet: 'Алфавит',
+                numbers: 'Терахьаш',
+                games: 'Ловзарш',
+                progressTitle: 'Хьан кхиам',
+                numbersProgressTitle: 'Терахьийн кхиам',
+                lettersLearned: 'Ӏамина элпаш',
+                numbersLearned: 'Ӏамина терахьаш',
+                totalLetters: 'Массо элпаш',
+                totalNumbers: 'Массо терахьаш',
+                streak: 'Денош',
+                clickToFlip: 'Тӏетаӏа гучудаккха',
+                clickToFlipBack: 'Юхагӏо',
+                numbers0to10: '0-10 кхаччалц',
+                numbers11to20: '11-20 кхаччалц',
+                numbers21to100: '21-100 кхаччалц',
+                reset: 'Юхадоккху',
+                objects: 'Хӏума',
+                fingers: 'Пӏелгаш',
+                matchGameTitle: 'Нийса харжа',
+                matchGameDesc: 'Элп тӏе а тӏетаӏийна, цуьнан цӏе харжа',
+                soundGameTitle: 'Аз хаза',
+                soundGameDesc: 'Аз ладугӏуш, элп харжа',
+                wordGameTitle: 'Дош кхолла',
+                wordGameDesc: 'Элпашкара дешнаш кхолла',
+                back: 'Юха',
+                score: 'Баллаш:',
+                correct: 'Нийса:',
+                continue: 'Кхин дӏа',
+                wellDone: 'Дика ду!',
+                tryAgain: 'Юха зе!',
+                excellent: 'Дика хилла!',
+                gameComplete: 'Ловзар чекхъяьлла!'
+            },
+            ru: {
+                appTitle: '1ilm - Чеченский язык',
+                appSubtitle: 'Изучение чеченского языка для детей',
+                language: 'Язык:',
+                alphabet: 'Алфавит',
+                numbers: 'Числа',
+                games: 'Игры',
+                progressTitle: 'Ваш прогресс',
+                numbersProgressTitle: 'Прогресс чисел',
+                lettersLearned: 'Изучено букв',
+                numbersLearned: 'Изучено чисел',
+                totalLetters: 'Всего букв',
+                totalNumbers: 'Всего чисел',
+                streak: 'Дней подряд',
+                clickToFlip: 'Нажмите чтобы перевернуть',
+                clickToFlipBack: 'Нажмите чтобы вернуть',
+                numbers0to10: 'Числа 0-10',
+                numbers11to20: 'Числа 11-20',
+                numbers21to100: 'Числа 21-100',
+                reset: 'Сбросить',
+                objects: 'Предметы',
+                fingers: 'Пальцы',
+                matchGameTitle: 'Найди пару',
+                matchGameDesc: 'Выбери правильное название буквы',
+                soundGameTitle: 'Угадай звук',
+                soundGameDesc: 'Послушай звук и выбери букву',
+                wordGameTitle: 'Собери слово',
+                wordGameDesc: 'Составь слова из букв',
+                back: 'Назад',
+                score: 'Очки:',
+                correct: 'Правильно:',
+                continue: 'Далее',
+                wellDone: 'Молодец!',
+                tryAgain: 'Попробуй еще!',
+                excellent: 'Отлично!',
+                gameComplete: 'Игра завершена!'
+            },
+            en: {
+                appTitle: '1ilm - Chechen Language',
+                appSubtitle: 'Chechen Language Learning for Kids',
+                language: 'Language:',
+                alphabet: 'Alphabet',
+                numbers: 'Numbers',
+                games: 'Games',
+                progressTitle: 'Your Progress',
+                numbersProgressTitle: 'Numbers Progress',
+                lettersLearned: 'Letters Learned',
+                numbersLearned: 'Numbers Learned',
+                totalLetters: 'Total Letters',
+                totalNumbers: 'Total Numbers',
+                streak: 'Day Streak',
+                clickToFlip: 'Click to flip',
+                clickToFlipBack: 'Click to flip back',
+                numbers0to10: 'Numbers 0-10',
+                numbers11to20: 'Numbers 11-20',
+                numbers21to100: 'Numbers 21-100',
+                reset: 'Reset',
+                objects: 'Objects',
+                fingers: 'Fingers',
+                matchGameTitle: 'Match Letters',
+                matchGameDesc: 'Choose the correct letter name',
+                soundGameTitle: 'Sound Recognition',
+                soundGameDesc: 'Listen and choose the letter',
+                wordGameTitle: 'Word Builder',
+                wordGameDesc: 'Build words from letters',
+                back: 'Back',
+                score: 'Score:',
+                correct: 'Correct:',
+                continue: 'Continue',
+                wellDone: 'Well done!',
+                tryAgain: 'Try again!',
+                excellent: 'Excellent!',
+                gameComplete: 'Game Complete!'
+            },
+            fr: {
+                appTitle: '1ilm - Langue Tchétchène',
+                appSubtitle: 'Apprentissage du Tchétchène pour Enfants',
+                language: 'Langue:',
+                alphabet: 'Alphabet',
+                numbers: 'Nombres',
+                games: 'Jeux',
+                progressTitle: 'Votre Progrès',
+                numbersProgressTitle: 'Progrès des Nombres',
+                lettersLearned: 'Lettres Apprises',
+                numbersLearned: 'Nombres Appris',
+                totalLetters: 'Total des Lettres',
+                totalNumbers: 'Total des Nombres',
+                streak: 'Jours Consécutifs',
+                clickToFlip: 'Cliquez pour retourner',
+                clickToFlipBack: 'Cliquez pour revenir',
+                numbers0to10: 'Nombres 0-10',
+                numbers11to20: 'Nombres 11-20',
+                numbers21to100: 'Nombres 21-100',
+                reset: 'Réinitialiser',
+                objects: 'Objets',
+                fingers: 'Doigts',
+                matchGameTitle: 'Associer les Lettres',
+                matchGameDesc: 'Choisissez le bon nom de lettre',
+                soundGameTitle: 'Reconnaissance Sonore',
+                soundGameDesc: 'Écoutez et choisissez la lettre',
+                wordGameTitle: 'Constructeur de Mots',
+                wordGameDesc: 'Construisez des mots avec des lettres',
+                back: 'Retour',
+                score: 'Score:',
+                correct: 'Correct:',
+                continue: 'Continuer',
+                wellDone: 'Bien joué!',
+                tryAgain: 'Réessayez!',
+                excellent: 'Excellent!',
+                gameComplete: 'Jeu Terminé!'
+            },
+            ar: {
+                appTitle: '1ilm - اللغة الشيشانية',
+                appSubtitle: 'تعلم اللغة الشيشانية للأطفال',
+                language: 'اللغة:',
+                alphabet: 'الأبجدية',
+                numbers: 'الأرقام',
+                games: 'الألعاب',
+                progressTitle: 'تقدمك',
+                numbersProgressTitle: 'تقدم الأرقام',
+                lettersLearned: 'الحروف المتعلمة',
+                numbersLearned: 'الأرقام المتعلمة',
+                totalLetters: 'مجموع الحروف',
+                totalNumbers: 'مجموع الأرقام',
+                streak: 'أيام متتالية',
+                clickToFlip: 'انقر للقلب',
+                clickToFlipBack: 'انقر للعودة',
+                numbers0to10: 'الأرقام 0-10',
+                numbers11to20: 'الأرقام 11-20',
+                numbers21to100: 'الأرقام 21-100',
+                reset: 'إعادة تعيين',
+                objects: 'أشياء',
+                fingers: 'أصابع',
+                matchGameTitle: 'مطابقة الحروف',
+                matchGameDesc: 'اختر اسم الحرف الصحيح',
+                soundGameTitle: 'التعرف على الصوت',
+                soundGameDesc: 'استمع واختر الحرف',
+                wordGameTitle: 'بناء الكلمات',
+                wordGameDesc: 'اصنع كلمات من الحروف',
+                back: 'رجوع',
+                score: 'النقاط:',
+                correct: 'صحيح:',
+                continue: 'استمر',
+                wellDone: 'أحسنت!',
+                tryAgain: 'حاول مرة أخرى!',
+                excellent: 'ممتاز!',
+                gameComplete: 'اكتملت اللعبة!'
+            }
+        };
+
+        // Number contexts for back of cards
+        const numberContexts = {
+            ce: [
+                { visual: '⬤', context: 'Цхьаъ хӏума' },
+                { visual: '⬤⬤', context: 'Шиъ хӏума' },
+                { visual: '⬤⬤⬤', context: 'Кхоъ хӏума' },
+                { visual: '⬤⬤⬤⬤', context: 'Диъ хӏума' },
+                { visual: '⬤⬤⬤⬤⬤', context: 'Пхиъ хӏума' },
+                { visual: '🤚☝️', context: 'Цхьа куьг, цхьа пӏелг' },
+                { visual: '🤚✌️', context: 'Цхьа куьг, ши пӏелг' },
+                { visual: '🤚🤟', context: 'Цхьа куьг, кхо пӏелг' },
+                { visual: '🤚✋', context: 'Цхьа куьг, ди пӏелг' },
+                { visual: '🤚✋', context: 'Цхьа куьг массо пӏелгаш' },
+                { visual: '✋✋', context: 'Ши куьг' }
+            ],
+            ru: [
+                { visual: '⬤', context: 'Один предмет' },
+                { visual: '⬤⬤', context: 'Два предмета' },
+                { visual: '⬤⬤⬤', context: 'Три предмета' },
+                { visual: '⬤⬤⬤⬤', context: 'Четыре предмета' },
+                { visual: '⬤⬤⬤⬤⬤', context: 'Пять предметов' },
+                { visual: '🤚☝️', context: 'Одна рука, один палец' },
+                { visual: '🤚✌️', context: 'Одна рука, два пальца' },
+                { visual: '🤚🤟', context: 'Одна рука, три пальца' },
+                { visual: '🤚✋', context: 'Одна рука, четыре пальца' },
+                { visual: '🤚✋', context: 'Одна рука, все пальцы' },
+                { visual: '✋✋', context: 'Две руки' }
+            ],
+            en: [
+                { visual: '⬤', context: 'One object' },
+                { visual: '⬤⬤', context: 'Two objects' },
+                { visual: '⬤⬤⬤', context: 'Three objects' },
+                { visual: '⬤⬤⬤⬤', context: 'Four objects' },
+                { visual: '⬤⬤⬤⬤⬤', context: 'Five objects' },
+                { visual: '🤚☝️', context: 'One hand, one finger' },
+                { visual: '🤚✌️', context: 'One hand, two fingers' },
+                { visual: '🤚🤟', context: 'One hand, three fingers' },
+                { visual: '🤚✋', context: 'One hand, four fingers' },
+                { visual: '🤚✋', context: 'One hand, all fingers' },
+                { visual: '✋✋', context: 'Two hands' }
+            ],
+            fr: [
+                { visual: '⬤', context: 'Un objet' },
+                { visual: '⬤⬤', context: 'Deux objets' },
+                { visual: '⬤⬤⬤', context: 'Trois objets' },
+                { visual: '⬤⬤⬤⬤', context: 'Quatre objets' },
+                { visual: '⬤⬤⬤⬤⬤', context: 'Cinq objets' },
+                { visual: '🤚☝️', context: 'Une main, un doigt' },
+                { visual: '🤚✌️', context: 'Une main, deux doigts' },
+                { visual: '🤚🤟', context: 'Une main, trois doigts' },
+                { visual: '🤚✋', context: 'Une main, quatre doigts' },
+                { visual: '🤚✋', context: 'Une main, tous les doigts' },
+                { visual: '✋✋', context: 'Deux mains' }
+            ],
+            ar: [
+                { visual: '⬤', context: 'شيء واحد' },
+                { visual: '⬤⬤', context: 'شيئان' },
+                { visual: '⬤⬤⬤', context: 'ثلاثة أشياء' },
+                { visual: '⬤⬤⬤⬤', context: 'أربعة أشياء' },
+                { visual: '⬤⬤⬤⬤⬤', context: 'خمسة أشياء' },
+                { visual: '🤚☝️', context: 'يد واحدة، إصبع واحد' },
+                { visual: '🤚✌️', context: 'يد واحدة، إصبعان' },
+                { visual: '🤚🤟', context: 'يد واحدة، ثلاثة أصابع' },
+                { visual: '🤚✋', context: 'يد واحدة، أربعة أصابع' },
+                { visual: '🤚✋', context: 'يد واحدة، كل الأصابع' },
+                { visual: '✋✋', context: 'يدان' }
+            ]
+        };
+
+        // Chechen numbers data
+        const chechenNumbers = [
+            { digit: 0, chechen: 'ноль', pronunciation: 'nol', emoji: '🔵' },
+            { digit: 1, chechen: 'цхьаъ', pronunciation: 'tsḥaʾ', emoji: '1️⃣' },
+            { digit: 2, chechen: 'шиъ', pronunciation: 'šiʾ', emoji: '2️⃣' },
+            { digit: 3, chechen: 'кхоъ', pronunciation: 'qoʾ', emoji: '3️⃣' },
+            { digit: 4, chechen: 'диъ', pronunciation: 'diʾ', emoji: '4️⃣' },
+            { digit: 5, chechen: 'пхиъ', pronunciation: 'pxiʾ', emoji: '5️⃣' },
+            { digit: 6, chechen: 'ялх', pronunciation: 'yalx', emoji: '6️⃣' },
+            { digit: 7, chechen: 'ворхӏ', pronunciation: 'vorḥ', emoji: '7️⃣' },
+            { digit: 8, chechen: 'бархӏ', pronunciation: 'barḥ', emoji: '8️⃣' },
+            { digit: 9, chechen: 'исс', pronunciation: 'iss', emoji: '9️⃣' },
+            { digit: 10, chechen: 'итт', pronunciation: 'itt', emoji: '🔟' },
+            { digit: 11, chechen: 'цхьайтта', pronunciation: 'tsḥaytta', emoji: '1️⃣1️⃣' },
+            { digit: 12, chechen: 'шийтта', pronunciation: 'šiytta', emoji: '1️⃣2️⃣' },
+            { digit: 13, chechen: 'кхойтта', pronunciation: 'qoytta', emoji: '1️⃣3️⃣' },
+            { digit: 14, chechen: 'дейтта', pronunciation: 'deytta', emoji: '1️⃣4️⃣' },
+            { digit: 15, chechen: 'пхийтта', pronunciation: 'pxiytta', emoji: '1️⃣5️⃣' },
+            { digit: 16, chechen: 'ялхитта', pronunciation: 'yalxitta', emoji: '1️⃣6️⃣' },
+            { digit: 17, chechen: 'вуьрхӏитта', pronunciation: 'vürḥitta', emoji: '1️⃣7️⃣' },
+            { digit: 18, chechen: 'берхӏитта', pronunciation: 'berḥitta', emoji: '1️⃣8️⃣' },
+            { digit: 19, chechen: 'ткъайесна', pronunciation: 'tq̇ayesna', emoji: '1️⃣9️⃣' },
+            { digit: 20, chechen: 'ткъа', pronunciation: 'tq̇a', emoji: '2️⃣0️⃣' },
+            { digit: 21, chechen: 'ткъе цхьаъ', pronunciation: 'tq̇e tsḥaʾ', emoji: '2️⃣1️⃣' },
+            { digit: 22, chechen: 'ткъе шиъ', pronunciation: 'tq̇e šiʾ', emoji: '2️⃣2️⃣' },
+            { digit: 23, chechen: 'ткъе кхоъ', pronunciation: 'tq̇e qoʾ', emoji: '2️⃣3️⃣' },
+            { digit: 24, chechen: 'ткъе диъ', pronunciation: 'tq̇e diʾ', emoji: '2️⃣4️⃣' },
+            { digit: 25, chechen: 'ткъе пхиъ', pronunciation: 'tq̇e pxiʾ', emoji: '2️⃣5️⃣' },
+            { digit: 26, chechen: 'ткъе ялх', pronunciation: 'tq̇e yalx', emoji: '2️⃣6️⃣' },
+            { digit: 27, chechen: 'ткъе ворхӏ', pronunciation: 'tq̇e vorḥ', emoji: '2️⃣7️⃣' },
+            { digit: 28, chechen: 'ткъе бархӏ', pronunciation: 'tq̇e barḥ', emoji: '2️⃣8️⃣' },
+            { digit: 29, chechen: 'ткъе исс', pronunciation: 'tq̇e iss', emoji: '2️⃣9️⃣' },
+            { digit: 30, chechen: 'ткъе итт', pronunciation: 'tq̇e itt', emoji: '3️⃣0️⃣' },
+            { digit: 40, chechen: 'шовзткъа', pronunciation: 'šovztq̇a', emoji: '4️⃣0️⃣' },
+            { digit: 50, chechen: 'шовзткъе итт', pronunciation: 'šovztq̇e itt', emoji: '5️⃣0️⃣' },
+            { digit: 60, chechen: 'кхузткъа', pronunciation: 'quztq̇a', emoji: '6️⃣0️⃣' },
+            { digit: 70, chechen: 'кхузткъе итт', pronunciation: 'quztq̇e itt', emoji: '7️⃣0️⃣' },
+            { digit: 80, chechen: 'дезткъа', pronunciation: 'deztq̇a', emoji: '8️⃣0️⃣' },
+            { digit: 90, chechen: 'дезткъе итт', pronunciation: 'deztq̇e itt', emoji: '9️⃣0️⃣' },
+            { digit: 100, chechen: 'бӏе', pronunciation: 'bʾe', emoji: '💯' }
+        ];
+
+        // Word translations (keeping previous alphabet data)
+        const wordTranslations = {
+            ce: [
+                { word: 'Аьрзу', translation: 'Аьрзу' },
+                { word: 'Аьхка', translation: 'Аьхка' },
+                { word: 'Борз', translation: 'Борз' },
+                { word: 'Ваша', translation: 'Ваша' },
+                { word: 'Говр', translation: 'Говр' },
+                { word: 'Гӏала', translation: 'Гӏала' },
+                { word: 'Дог', translation: 'Дог' },
+                { word: 'Елха', translation: 'Елха' },
+                { word: 'Ёл', translation: 'Ёл' },
+                { word: 'Жима', translation: 'Жима' },
+                { word: 'Зезаг', translation: 'Зезаг' },
+                { word: 'Илли', translation: 'Илли' },
+                { word: 'Ийман', translation: 'Ийман' },
+                { word: 'Йоӏ', translation: 'Йоӏ' },
+                { word: 'Котам', translation: 'Котам' },
+                { word: 'Кхокха', translation: 'Кхокха' },
+                { word: 'Къорза', translation: 'Къорза' },
+                { word: 'Кӏант', translation: 'Кӏант' },
+                { word: 'Лам', translation: 'Лам' },
+                { word: 'Малх', translation: 'Малх' },
+                { word: 'Нана', translation: 'Нана' },
+                { word: 'Орам', translation: 'Орам' },
+                { word: 'Оьрс', translation: 'Оьрс' },
+                { word: 'Пхьагал', translation: 'Пхьагал' },
+                { word: 'Пӏелг', translation: 'Пӏелг' },
+                { word: 'Ромашка', translation: 'Ромашка' },
+                { word: 'Стом', translation: 'Стом' },
+                { word: 'Тӏулг', translation: 'Тӏулг' },
+                { word: 'Тӏом', translation: 'Тӏом' },
+                { word: 'Устагӏ', translation: 'Устагӏ' },
+                { word: 'Уьш', translation: 'Уьш' },
+                { word: 'Футбол', translation: 'Футбол' },
+                { word: 'Хи', translation: 'Хи' },
+                { word: 'Хьаша', translation: 'Хьаша' },
+                { word: 'Хӏорд', translation: 'Хӏорд' },
+                { word: 'Цӏе', translation: 'Цӏе' },
+                { word: 'Цӏа', translation: 'Цӏа' },
+                { word: 'Ча', translation: 'Ча' },
+                { word: 'Чӏара', translation: 'Чӏара' },
+                { word: 'Шовда', translation: 'Шовда' },
+                { word: 'Щекъа', translation: 'Щекъа' },
+                { word: 'объект', translation: 'объект' },
+                { word: 'Мыш', translation: 'Мыш' },
+                { word: 'Соль', translation: 'Соль' },
+                { word: 'Экха', translation: 'Экха' },
+                { word: 'Эьхь', translation: 'Эьхь' },
+                { word: 'Юрт', translation: 'Юрт' },
+                { word: 'Юьхь', translation: 'Юьхь' },
+                { word: 'Яй', translation: 'Яй' },
+                { word: 'Яьлла', translation: 'Яьлла' }
+            ],
+            ru: [
+                { word: 'Аьрзу', translation: 'Орел' },
+                { word: 'Аьхка', translation: 'Лето' },
+                { word: 'Борз', translation: 'Волк' },
+                { word: 'Ваша', translation: 'Брат' },
+                { word: 'Говр', translation: 'Лошадь' },
+                { word: 'Гӏала', translation: 'Город' },
+                { word: 'Дог', translation: 'Сердце' },
+                { word: 'Елха', translation: 'Длинный' },
+                { word: 'Ёл', translation: 'Ёлка' },
+                { word: 'Жима', translation: 'Маленький' },
+                { word: 'Зезаг', translation: 'Цветок' },
+                { word: 'Илли', translation: 'Песня' },
+                { word: 'Ийман', translation: 'Вера' },
+                { word: 'Йоӏ', translation: 'Девочка' },
+                { word: 'Котам', translation: 'Курица' },
+                { word: 'Кхокха', translation: 'Голубь' },
+                { word: 'Къорза', translation: 'Гордый' },
+                { word: 'Кӏант', translation: 'Мальчик' },
+                { word: 'Лам', translation: 'Гора' },
+                { word: 'Малх', translation: 'Солнце' },
+                { word: 'Нана', translation: 'Мама' },
+                { word: 'Орам', translation: 'Улица' },
+                { word: 'Оьрс', translation: 'Русский' },
+                { word: 'Пхьагал', translation: 'Заяц' },
+                { word: 'Пӏелг', translation: 'Палец' },
+                { word: 'Ромашка', translation: 'Ромашка' },
+                { word: 'Стом', translation: 'Фрукт' },
+                { word: 'Тӏулг', translation: 'Камень' },
+                { word: 'Тӏом', translation: 'Война' },
+                { word: 'Устагӏ', translation: 'Бык' },
+                { word: 'Уьш', translation: 'Они' },
+                { word: 'Футбол', translation: 'Футбол' },
+                { word: 'Хи', translation: 'Вода' },
+                { word: 'Хьаша', translation: 'Гость' },
+                { word: 'Хӏорд', translation: 'Море' },
+                { word: 'Цӏе', translation: 'Огонь' },
+                { word: 'Цӏа', translation: 'Дом' },
+                { word: 'Ча', translation: 'Медведь' },
+                { word: 'Чӏара', translation: 'Рыба' },
+                { word: 'Шовда', translation: 'Родник' },
+                { word: 'Щекъа', translation: 'Щека' },
+                { word: 'объект', translation: 'Объект' },
+                { word: 'Мыш', translation: 'Мышь' },
+                { word: 'Соль', translation: 'Соль' },
+                { word: 'Экха', translation: 'Плуг' },
+                { word: 'Эьхь', translation: 'Стыд' },
+                { word: 'Юрт', translation: 'Деревня' },
+                { word: 'Юьхь', translation: 'Лицо' },
+                { word: 'Яй', translation: 'Яйцо' },
+                { word: 'Яьлла', translation: 'Сухой' }
+            ],
+            en: [
+                { word: 'Аьрзу', translation: 'Eagle' },
+                { word: 'Аьхка', translation: 'Summer' },
+                { word: 'Борз', translation: 'Wolf' },
+                { word: 'Ваша', translation: 'Brother' },
+                { word: 'Говр', translation: 'Horse' },
+                { word: 'Гӏала', translation: 'City' },
+                { word: 'Дог', translation: 'Heart' },
+                { word: 'Елха', translation: 'Long' },
+                { word: 'Ёл', translation: 'Yule' },
+                { word: 'Жима', translation: 'Small' },
+                { word: 'Зезаг', translation: 'Flower' },
+                { word: 'Илли', translation: 'Song' },
+                { word: 'Ийман', translation: 'Faith' },
+                { word: 'Йоӏ', translation: 'Girl' },
+                { word: 'Котам', translation: 'Chicken' },
+                { word: 'Кхокха', translation: 'Dove' },
+                { word: 'Къорза', translation: 'Proud' },
+                { word: 'Кӏант', translation: 'Boy' },
+                { word: 'Лам', translation: 'Mountain' },
+                { word: 'Малх', translation: 'Sun' },
+                { word: 'Нана', translation: 'Mother' },
+                { word: 'Орам', translation: 'Street' },
+                { word: 'Оьрс', translation: 'Russian' },
+                { word: 'Пхьагал', translation: 'Rabbit' },
+                { word: 'Пӏелг', translation: 'Finger' },
+                { word: 'Ромашка', translation: 'Daisy' },
+                { word: 'Стом', translation: 'Fruit' },
+                { word: 'Тӏулг', translation: 'Stone' },
+                { word: 'Тӏом', translation: 'War' },
+                { word: 'Устагӏ', translation: 'Bull' },
+                { word: 'Уьш', translation: 'They' },
+                { word: 'Футбол', translation: 'Football' },
+                { word: 'Хи', translation: 'Water' },
+                { word: 'Хьаша', translation: 'Guest' },
+                { word: 'Хӏорд', translation: 'Sea' },
+                { word: 'Цӏе', translation: 'Fire' },
+                { word: 'Цӏа', translation: 'House' },
+                { word: 'Ча', translation: 'Bear' },
+                { word: 'Чӏара', translation: 'Fish' },
+                { word: 'Шовда', translation: 'Spring' },
+                { word: 'Щекъа', translation: 'Cheek' },
+                { word: 'объект', translation: 'Object' },
+                { word: 'Мыш', translation: 'Mouse' },
+                { word: 'Соль', translation: 'Salt' },
+                { word: 'Экха', translation: 'Plow' },
+                { word: 'Эьхь', translation: 'Shame' },
+                { word: 'Юрт', translation: 'Village' },
+                { word: 'Юьхь', translation: 'Face' },
+                { word: 'Яй', translation: 'Egg' },
+                { word: 'Яьлла', translation: 'Dried' }
+            ],
+            fr: [
+                { word: 'Аьрзу', translation: 'Aigle' },
+                { word: 'Аьхка', translation: 'Été' },
+                { word: 'Борз', translation: 'Loup' },
+                { word: 'Ваша', translation: 'Frère' },
+                { word: 'Говр', translation: 'Cheval' },
+                { word: 'Гӏала', translation: 'Ville' },
+                { word: 'Дог', translation: 'Cœur' },
+                { word: 'Елха', translation: 'Long' },
+                { word: 'Ёл', translation: 'Sapin' },
+                { word: 'Жима', translation: 'Petit' },
+                { word: 'Зезаг', translation: 'Fleur' },
+                { word: 'Илли', translation: 'Chanson' },
+                { word: 'Ийман', translation: 'Foi' },
+                { word: 'Йоӏ', translation: 'Fille' },
+                { word: 'Котам', translation: 'Poulet' },
+                { word: 'Кхокха', translation: 'Colombe' },
+                { word: 'Къорза', translation: 'Fier' },
+                { word: 'Кӏант', translation: 'Garçon' },
+                { word: 'Лам', translation: 'Montagne' },
+                { word: 'Малх', translation: 'Soleil' },
+                { word: 'Нана', translation: 'Mère' },
+                { word: 'Орам', translation: 'Rue' },
+                { word: 'Оьрс', translation: 'Russe' },
+                { word: 'Пхьагал', translation: 'Lapin' },
+                { word: 'Пӏелг', translation: 'Doigt' },
+                { word: 'Ромашка', translation: 'Marguerite' },
+                { word: 'Стом', translation: 'Fruit' },
+                { word: 'Тӏулг', translation: 'Pierre' },
+                { word: 'Тӏом', translation: 'Guerre' },
+                { word: 'Устагӏ', translation: 'Taureau' },
+                { word: 'Уьш', translation: 'Ils/Elles' },
+                { word: 'Футбол', translation: 'Football' },
+                { word: 'Хи', translation: 'Eau' },
+                { word: 'Хьаша', translation: 'Invité' },
+                { word: 'Хӏорд', translation: 'Mer' },
+                { word: 'Цӏе', translation: 'Feu' },
+                { word: 'Цӏа', translation: 'Maison' },
+                { word: 'Ча', translation: 'Ours' },
+                { word: 'Чӏара', translation: 'Poisson' },
+                { word: 'Шовда', translation: 'Source' },
+                { word: 'Щекъа', translation: 'Joue' },
+                { word: 'объект', translation: 'Objet' },
+                { word: 'Мыш', translation: 'Souris' },
+                { word: 'Соль', translation: 'Sel' },
+                { word: 'Экха', translation: 'Charrue' },
+                { word: 'Эьхь', translation: 'Honte' },
+                { word: 'Юрт', translation: 'Village' },
+                { word: 'Юьхь', translation: 'Visage' },
+                { word: 'Яй', translation: 'Œuf' },
+                { word: 'Яьлла', translation: 'Séché' }
+            ],
+            ar: [
+                { word: 'Аьрзу', translation: 'نسر' },
+                { word: 'Аьхка', translation: 'صيف' },
+                { word: 'Борз', translation: 'ذئب' },
+                { word: 'Ваша', translation: 'أخ' },
+                { word: 'Говр', translation: 'حصان' },
+                { word: 'Гӏала', translation: 'مدينة' },
+                { word: 'Дог', translation: 'قلب' },
+                { word: 'Елха', translation: 'طويل' },
+                { word: 'Ёл', translation: 'شجرة عيد الميلاد' },
+                { word: 'Жима', translation: 'صغير' },
+                { word: 'Зезаг', translation: 'زهرة' },
+                { word: 'Илли', translation: 'أغنية' },
+                { word: 'Ийман', translation: 'إيمان' },
+                { word: 'Йоӏ', translation: 'فتاة' },
+                { word: 'Котам', translation: 'دجاجة' },
+                { word: 'Кхокха', translation: 'حمامة' },
+                { word: 'Къорза', translation: 'فخور' },
+                { word: 'Кӏант', translation: 'ولد' },
+                { word: 'Лам', translation: 'جبل' },
+                { word: 'Малх', translation: 'شمس' },
+                { word: 'Нана', translation: 'أم' },
+                { word: 'Орам', translation: 'شارع' },
+                { word: 'Оьрс', translation: 'روسي' },
+                { word: 'Пхьагал', translation: 'أرنب' },
+                { word: 'Пӏелг', translation: 'إصبع' },
+                { word: 'Ромашка', translation: 'بابونج' },
+                { word: 'Стом', translation: 'فاكهة' },
+                { word: 'Тӏулг', translation: 'حجر' },
+                { word: 'Тӏом', translation: 'حرب' },
+                { word: 'Устагӏ', translation: 'ثور' },
+                { word: 'Уьш', translation: 'هم' },
+                { word: 'Футбол', translation: 'كرة القدم' },
+                { word: 'Хи', translation: 'ماء' },
+                { word: 'Хьаша', translation: 'ضيف' },
+                { word: 'Хӏорд', translation: 'بحر' },
+                { word: 'Цӏе', translation: 'نار' },
+                { word: 'Цӏа', translation: 'بيت' },
+                { word: 'Ча', translation: 'دب' },
+                { word: 'Чӏара', translation: 'سمكة' },
+                { word: 'Шовда', translation: 'ينبوع' },
+                { word: 'Щекъа', translation: 'خد' },
+                { word: 'объект', translation: 'كائن' },
+                { word: 'Мыш', translation: 'فأر' },
+                { word: 'Соль', translation: 'ملح' },
+                { word: 'Экха', translation: 'محراث' },
+                { word: 'Эьхь', translation: 'خجل' },
+                { word: 'Юрт', translation: 'قرية' },
+                { word: 'Юьхь', translation: 'وجه' },
+                { word: 'Яй', translation: 'بيضة' },
+                { word: 'Яьлла', translation: 'جاف' }
+            ]
+        };
+
+        // Chechen alphabet data
+        const chechenAlphabet = [
+            { letter: 'А', name: 'а', latin: 'a', emoji: '🦅' },
+            { letter: 'Аь', name: 'аь', latin: 'ä', emoji: '☀️' },
+            { letter: 'Б', name: 'бэ', latin: 'b', emoji: '🐺' },
+            { letter: 'В', name: 'вэ', latin: 'v', emoji: '👦' },
+            { letter: 'Г', name: 'гэ', latin: 'g', emoji: '🐴' },
+            { letter: 'Гӏ', name: 'гӏа', latin: 'ġ', emoji: '🏙️' },
+            { letter: 'Д', name: 'дэ', latin: 'd', emoji: '❤️' },
+            { letter: 'Е', name: 'е', latin: 'e/ye', emoji: '📏' },
+            { letter: 'Ё', name: 'ё', latin: 'yo', emoji: '🎄' },
+            { letter: 'Ж', name: 'жэ', latin: 'ž', emoji: '🐁' },
+            { letter: 'З', name: 'зэ', latin: 'z', emoji: '🌸' },
+            { letter: 'И', name: 'и', latin: 'i', emoji: '🎵' },
+            { letter: 'Ий', name: 'ий', latin: 'iy', emoji: '🙏' },
+            { letter: 'Й', name: 'и краткий', latin: 'y', emoji: '👧' },
+            { letter: 'К', name: 'ка', latin: 'k', emoji: '🐔' },
+            { letter: 'Кх', name: 'кха', latin: 'q', emoji: '🕊️' },
+            { letter: 'Къ', name: 'къа', latin: 'q̇', emoji: '💪' },
+            { letter: 'Кӏ', name: 'кӏа', latin: 'ḳ', emoji: '👦' },
+            { letter: 'Л', name: 'эл', latin: 'l', emoji: '🏔️' },
+            { letter: 'М', name: 'эм', latin: 'm', emoji: '☀️' },
+            { letter: 'Н', name: 'эн', latin: 'n', emoji: '👩' },
+            { letter: 'О', name: 'о', latin: 'o', emoji: '🛣️' },
+            { letter: 'Оь', name: 'оь', latin: 'ö', emoji: '🇷🇺' },
+            { letter: 'П', name: 'пэ', latin: 'p', emoji: '🐰' },
+            { letter: 'Пӏ', name: 'пӏа', latin: 'ṗ', emoji: '👆' },
+            { letter: 'Р', name: 'эр', latin: 'r', emoji: '🌼' },
+            { letter: 'С', name: 'эс', latin: 's', emoji: '🍎' },
+            { letter: 'Т', name: 'тэ', latin: 't', emoji: '🪨' },
+            { letter: 'Тӏ', name: 'тӏа', latin: 'ṭ', emoji: '⚔️' },
+            { letter: 'У', name: 'у', latin: 'u', emoji: '🐂' },
+            { letter: 'Уь', name: 'уь', latin: 'ü', emoji: '👥' },
+            { letter: 'Ф', name: 'эф', latin: 'f', emoji: '⚽' },
+            { letter: 'Х', name: 'ха', latin: 'x', emoji: '💧' },
+            { letter: 'Хь', name: 'хьа', latin: 'ḥ', emoji: '🤝' },
+            { letter: 'Хӏ', name: 'хӏа', latin: 'h', emoji: '🌊' },
+            { letter: 'Ц', name: 'цэ', latin: 'c', emoji: '🔥' },
+            { letter: 'Цӏ', name: 'цӏа', latin: 'c̣', emoji: '🏠' },
+            { letter: 'Ч', name: 'чэ', latin: 'č', emoji: '🐻' },
+            { letter: 'Чӏ', name: 'чӏа', latin: 'č̣', emoji: '🐟' },
+            { letter: 'Ш', name: 'ша', latin: 'š', emoji: '⛲' },
+            { letter: 'Щ', name: 'ща', latin: 'šč', emoji: '😊' },
+            { letter: 'Ъ', name: 'твердый знак', latin: 'ʺ', emoji: '📦' },
+            { letter: 'Ы', name: 'ы', latin: 'ı', emoji: '🐭' },
+            { letter: 'Ь', name: 'мягкий знак', latin: 'ʹ', emoji: '🧂' },
+            { letter: 'Э', name: 'э', latin: 'e', emoji: '🚜' },
+            { letter: 'Эь', name: 'эь', latin: 'e̱', emoji: '😳' },
+            { letter: 'Ю', name: 'ю', latin: 'yu', emoji: '🏘️' },
+            { letter: 'Юь', name: 'юь', latin: 'yü', emoji: '😊' },
+            { letter: 'Я', name: 'я', latin: 'ya', emoji: '🥚' },
+            { letter: 'Яь', name: 'яь', latin: 'yä', emoji: '🍂' }
+        ];
+
+        // Current language and section
+        let currentLanguage = 'ce';
+        let currentSection = 'alphabet';
+        
+        // Track learned items
+        let learnedLetters = JSON.parse(localStorage.getItem('learnedLetters')) || [];
+        let learnedNumbers = JSON.parse(localStorage.getItem('learnedNumbers')) || [];
+
+        // Game variables
+        let currentGame = null;
+        let gameScore = 0;
+        let gameCorrect = 0;
+        let gameRound = 0;
+        let currentLetterIndex = 0;
+        let currentWord = null;
+        let wordIndex = 0;
+        let selectedLetters = [];
+        
+        // Simple words for word building game
+        const simpleWords = [
+            { ce: 'Аьрзу', emoji: '🦅', index: 0 },
+            { ce: 'Борз', emoji: '🐺', index: 2 },
+            { ce: 'Дог', emoji: '❤️', index: 6 },
+            { ce: 'Малх', emoji: '☀️', index: 19 },
+            { ce: 'Нана', emoji: '👩', index: 20 },
+            { ce: 'Цӏа', emoji: '🏠', index: 37 },
+            { ce: 'Ча', emoji: '🐻', index: 38 },
+            { ce: 'Хи', emoji: '💧', index: 33 },
+            { ce: 'Яй', emoji: '🥚', index: 48 }
+        ];
+
+        // Show/hide sections
+        function showSection(section) {
+            currentSection = section;
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(section + 'Btn').classList.add('active');
+            
+            // Show/hide sections
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(section + 'Section').classList.add('active');
+            
+            // Create or update content
+            if (section === 'numbers') {
+                createNumbersGrid();
+            } else if (section === 'games') {
+                updateGameMenu();
+            }
+        }
+        
+        // Update game menu with current language
+        function updateGameMenu() {
+            document.getElementById('matchGameTitle').textContent = translations[currentLanguage].matchGameTitle;
+            document.getElementById('matchGameDesc').textContent = translations[currentLanguage].matchGameDesc;
+            document.getElementById('soundGameTitle').textContent = translations[currentLanguage].soundGameTitle;
+            document.getElementById('soundGameDesc').textContent = translations[currentLanguage].soundGameDesc;
+            document.getElementById('wordGameTitle').textContent = translations[currentLanguage].wordGameTitle;
+            document.getElementById('wordGameDesc').textContent = translations[currentLanguage].wordGameDesc;
+        }
+        
+        // Start a game
+        function startGame(gameType) {
+            currentGame = gameType;
+            gameScore = 0;
+            gameCorrect = 0;
+            gameRound = 0;
+            
+            // Hide menu, show game
+            document.getElementById('gameMenu').style.display = 'none';
+            document.querySelectorAll('.game-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            if (gameType === 'match') {
+                document.getElementById('matchGameContainer').classList.add('active');
+                initMatchGame();
+            } else if (gameType === 'sound') {
+                document.getElementById('soundGameContainer').classList.add('active');
+                initSoundGame();
+            } else if (gameType === 'word') {
+                document.getElementById('wordGameContainer').classList.add('active');
+                initWordGame();
+            }
+            
+            updateGameUI();
+        }
+        
+        // Back to game menu
+        function backToGameMenu() {
+            document.querySelectorAll('.game-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById('gameMenu').style.display = 'grid';
+            currentGame = null;
+        }
+        
+        // Update game UI with translations
+        function updateGameUI() {
+            // Update all game UI elements
+            document.querySelectorAll('.backText, #backText').forEach(el => {
+                el.textContent = translations[currentLanguage].back;
+            });
+            document.querySelectorAll('.scoreLabel, #scoreLabel').forEach(el => {
+                el.textContent = translations[currentLanguage].score;
+            });
+            document.querySelectorAll('.correctLabel, #correctLabel').forEach(el => {
+                el.textContent = translations[currentLanguage].correct;
+            });
+            document.getElementById('continueText').textContent = translations[currentLanguage].continue;
+        }
+        
+        // Initialize Match Game
+        function initMatchGame() {
+            gameRound = 0;
+            updateMatchScore();
+            nextMatchRound();
+        }
+        
+        function nextMatchRound() {
+            if (gameRound >= 10) {
+                endGame('match');
+                return;
+            }
+            
+            gameRound++;
+            
+            // Pick a random letter
+            currentLetterIndex = Math.floor(Math.random() * chechenAlphabet.length);
+            const letter = chechenAlphabet[currentLetterIndex];
+            
+            document.getElementById('matchLetter').textContent = letter.letter;
+            document.getElementById('matchMessage').textContent = '';
+            
+            // Create options (1 correct + 3 random)
+            const options = [letter];
+            while (options.length < 4) {
+                const randomIndex = Math.floor(Math.random() * chechenAlphabet.length);
+                const randomLetter = chechenAlphabet[randomIndex];
+                if (!options.find(opt => opt.letter === randomLetter.letter)) {
+                    options.push(randomLetter);
+                }
+            }
+            
+            // Shuffle options
+            options.sort(() => Math.random() - 0.5);
+            
+            // Display options
+            const optionsContainer = document.getElementById('matchOptions');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(opt => {
+                const button = document.createElement('button');
+                button.className = 'match-option';
+                button.textContent = opt.name;
+                button.onclick = () => checkMatchAnswer(opt.letter === letter.letter, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+        
+        function checkMatchAnswer(isCorrect, button) {
+            // Disable all buttons
+            document.querySelectorAll('.match-option').forEach(btn => {
+                btn.onclick = null;
+            });
+            
+            if (isCorrect) {
+                button.classList.add('correct');
+                gameScore += 10;
+                gameCorrect++;
+                document.getElementById('matchMessage').innerHTML = `<span class="success-message">${translations[currentLanguage].wellDone}</span>`;
+                
+                // Update stars
+                if (gameCorrect <= 5) {
+                    document.querySelectorAll('#matchProgress .progress-star')[gameCorrect - 1].classList.add('earned');
+                }
+                
+                setTimeout(() => nextMatchRound(), 1500);
+            } else {
+                button.classList.add('incorrect');
+                document.getElementById('matchMessage').innerHTML = `<span class="error-message">${translations[currentLanguage].tryAgain}</span>`;
+                
+                setTimeout(() => {
+                    button.classList.remove('incorrect');
+                    button.onclick = () => checkMatchAnswer(false, button);
+                }, 1000);
+            }
+            
+            updateMatchScore();
+        }
+        
+        function updateMatchScore() {
+            document.getElementById('matchScore').textContent = gameScore;
+            document.getElementById('matchCorrect').textContent = gameCorrect;
+        }
+        
+        // Initialize Sound Game
+        function initSoundGame() {
+            gameRound = 0;
+            updateSoundScore();
+            nextSoundRound();
+        }
+        
+        function nextSoundRound() {
+            if (gameRound >= 10) {
+                endGame('sound');
+                return;
+            }
+            
+            gameRound++;
+            
+            // Pick a random letter
+            currentLetterIndex = Math.floor(Math.random() * chechenAlphabet.length);
+            const letter = chechenAlphabet[currentLetterIndex];
+            
+            document.getElementById('soundMessage').textContent = '';
+            
+            // Create options (1 correct + 5 random)
+            const options = [letter];
+            while (options.length < 6) {
+                const randomIndex = Math.floor(Math.random() * chechenAlphabet.length);
+                const randomLetter = chechenAlphabet[randomIndex];
+                if (!options.find(opt => opt.letter === randomLetter.letter)) {
+                    options.push(randomLetter);
+                }
+            }
+            
+            // Shuffle options
+            options.sort(() => Math.random() - 0.5);
+            
+            // Display options
+            const optionsContainer = document.getElementById('soundOptions');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(opt => {
+                const button = document.createElement('button');
+                button.className = 'sound-option';
+                button.textContent = opt.letter;
+                button.onclick = () => checkSoundAnswer(opt.letter === letter.letter, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+        
+        function playLetterSound() {
+            const letter = chechenAlphabet[currentLetterIndex];
+            console.log(`Playing sound for: ${letter.letter} (${letter.name})`);
+            
+            // Visual feedback
+            const btn = document.querySelector('.sound-button');
+            btn.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 200);
+            
+            // In a real app, play actual audio here
+            // For now, show the letter name briefly
+            const originalText = btn.textContent;
+            btn.textContent = letter.name;
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 1000);
+        }
+        
+        function checkSoundAnswer(isCorrect, button) {
+            // Disable all buttons
+            document.querySelectorAll('.sound-option').forEach(btn => {
+                btn.onclick = null;
+            });
+            
+            if (isCorrect) {
+                button.classList.add('correct');
+                gameScore += 10;
+                gameCorrect++;
+                document.getElementById('soundMessage').innerHTML = `<span class="success-message">${translations[currentLanguage].wellDone}</span>`;
+                
+                // Update stars
+                if (gameCorrect <= 5) {
+                    document.querySelectorAll('#soundProgress .progress-star')[gameCorrect - 1].classList.add('earned');
+                }
+                
+                setTimeout(() => nextSoundRound(), 1500);
+            } else {
+                button.classList.add('incorrect');
+                document.getElementById('soundMessage').innerHTML = `<span class="error-message">${translations[currentLanguage].tryAgain}</span>`;
+                
+                setTimeout(() => {
+                    button.classList.remove('incorrect');
+                    button.onclick = () => checkSoundAnswer(false, button);
+                }, 1000);
+            }
+            
+            updateSoundScore();
+        }
+        
+        function updateSoundScore() {
+            document.getElementById('soundScore').textContent = gameScore;
+            document.getElementById('soundCorrect').textContent = gameCorrect;
+        }
+        
+        // Initialize Word Building Game
+        function initWordGame() {
+            wordIndex = 0;
+            gameCorrect = 0;
+            gameScore = 0;
+            updateWordScore();
+            nextWord();
+        }
+        
+        function nextWord() {
+            if (wordIndex >= 5) {
+                endGame('word');
+                return;
+            }
+            
+            // Pick a random word
+            currentWord = simpleWords[Math.floor(Math.random() * simpleWords.length)];
+            selectedLetters = [];
+            
+            // Display word info
+            document.getElementById('wordTranslation').textContent = wordTranslations[currentLanguage][currentWord.index].translation;
+            document.getElementById('wordImage').textContent = currentWord.emoji;
+            document.getElementById('wordMessage').textContent = '';
+            document.getElementById('continueButton').classList.remove('show');
+            
+            // Create letter slots
+            const slotsContainer = document.getElementById('letterSlots');
+            slotsContainer.innerHTML = '';
+            
+            for (let i = 0; i < currentWord.ce.length; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'letter-slot';
+                slot.dataset.index = i;
+                slotsContainer.appendChild(slot);
+            }
+            
+            // Create letter choices
+            const letters = currentWord.ce.split('');
+            const extraLetters = [];
+            
+            // Add some random letters
+            while (extraLetters.length < 3) {
+                const randomLetter = chechenAlphabet[Math.floor(Math.random() * chechenAlphabet.length)];
+                if (!letters.includes(randomLetter.letter) && !extraLetters.includes(randomLetter.letter)) {
+                    extraLetters.push(randomLetter.letter);
+                }
+            }
+            
+            const allLetters = [...letters, ...extraLetters];
+            allLetters.sort(() => Math.random() - 0.5);
+            
+            // Display letter choices
+            const choicesContainer = document.getElementById('letterChoices');
+            choicesContainer.innerHTML = '';
+            
+            allLetters.forEach((letter, index) => {
+                const button = document.createElement('button');
+                button.className = 'letter-choice';
+                button.textContent = letter;
+                button.dataset.letter = letter;
+                button.dataset.index = index;
+                button.onclick = () => selectLetter(letter, button);
+                choicesContainer.appendChild(button);
+            });
+        }
+        
+        function selectLetter(letter, button) {
+            if (button.classList.contains('used')) return;
+            
+            // Find next empty slot
+            const slots = document.querySelectorAll('.letter-slot');
+            const emptySlot = Array.from(slots).find(slot => !slot.textContent);
+            
+            if (emptySlot) {
+                emptySlot.textContent = letter;
+                emptySlot.classList.add('filled');
+                emptySlot.dataset.choiceIndex = button.dataset.index;
+                button.classList.add('used');
+                selectedLetters.push(letter);
+                
+                // Check if word is complete
+                if (selectedLetters.length === currentWord.ce.length) {
+                    checkWord();
+                }
+            }
+        }
+        
+        function checkWord() {
+            const formedWord = selectedLetters.join('');
+            
+            if (formedWord === currentWord.ce) {
+                gameScore += 20;
+                gameCorrect++;
+                wordIndex++;
+                document.getElementById('wordMessage').innerHTML = `<span class="success-message">${translations[currentLanguage].excellent}</span>`;
+                document.getElementById('continueButton').classList.add('show');
+                
+                // Disable all letter choices
+                document.querySelectorAll('.letter-choice').forEach(btn => {
+                    btn.onclick = null;
+                });
+            } else {
+                document.getElementById('wordMessage').innerHTML = `<span class="error-message">${translations[currentLanguage].tryAgain}</span>`;
+                
+                // Reset after a delay
+                setTimeout(() => {
+                    // Clear slots
+                    document.querySelectorAll('.letter-slot').forEach(slot => {
+                        slot.textContent = '';
+                        slot.classList.remove('filled');
+                    });
+                    
+                    // Re-enable letter choices
+                    document.querySelectorAll('.letter-choice').forEach(btn => {
+                        btn.classList.remove('used');
+                        const letter = btn.dataset.letter;
+                        btn.onclick = () => selectLetter(letter, btn);
+                    });
+                    
+                    selectedLetters = [];
+                    document.getElementById('wordMessage').textContent = '';
+                }, 1500);
+            }
+            
+            updateWordScore();
+        }
+        
+        function updateWordScore() {
+            document.getElementById('wordScore').textContent = gameScore;
+            document.getElementById('wordCorrect').textContent = gameCorrect;
+        }
+        
+        // End game
+        function endGame(gameType) {
+            let message = `${translations[currentLanguage].gameComplete}<br>`;
+            message += `${translations[currentLanguage].score} ${gameScore}<br>`;
+            message += `${translations[currentLanguage].correct} ${gameCorrect}/${gameType === 'word' ? 5 : 10}`;
+            
+            if (gameType === 'match') {
+                document.getElementById('matchMessage').innerHTML = `<span class="success-message">${message}</span>`;
+            } else if (gameType === 'sound') {
+                document.getElementById('soundMessage').innerHTML = `<span class="success-message">${message}</span>`;
+            } else if (gameType === 'word') {
+                document.getElementById('wordMessage').innerHTML = `<span class="success-message">${message}</span>`;
+            }
+            
+            setTimeout(() => backToGameMenu(), 3000);
+        }
+        
+        // Change language function
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('preferredLanguage', lang);
+            
+            // Update text direction for Arabic
+            document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            
+            // Update UI texts
+            document.getElementById('appTitle').textContent = translations[lang].appTitle;
+            document.getElementById('appSubtitle').textContent = translations[lang].appSubtitle;
+            document.getElementById('languageLabel').textContent = translations[lang].language;
+            document.getElementById('alphabetBtn').textContent = translations[lang].alphabet;
+            document.getElementById('numbersBtn').textContent = translations[lang].numbers;
+            document.getElementById('gamesBtn').textContent = translations[lang].games;
+            document.getElementById('progressTitle').textContent = translations[lang].progressTitle;
+            document.getElementById('numbersProgressTitle').textContent = translations[lang].numbersProgressTitle;
+            document.getElementById('lettersLearnedLabel').textContent = translations[lang].lettersLearned;
+            document.getElementById('numbersLearnedLabel').textContent = translations[lang].numbersLearned;
+            document.getElementById('totalLettersLabel').textContent = translations[lang].totalLetters;
+            document.getElementById('totalNumbersLabel').textContent = translations[lang].totalNumbers;
+            document.getElementById('streakLabel').textContent = translations[lang].streak;
+            document.getElementById('resetAlphabetBtn').innerHTML = '🔄 ' + translations[lang].reset;
+            document.getElementById('resetNumbersBtn').innerHTML = '🔄 ' + translations[lang].reset;
+            
+            // Update game UI if in games section
+            if (currentSection === 'games') {
+                updateGameMenu();
+                updateGameUI();
+            }
+            
+            // Recreate current section with new language
+            if (currentSection === 'alphabet') {
+                document.getElementById('alphabetGrid').innerHTML = '';
+                createAlphabetGrid();
+            } else if (currentSection === 'numbers') {
+                document.getElementById('numbersContent').innerHTML = '';
+                createNumbersGrid();
+            }
+        }
+        
+        // Create alphabet grid
+        function createAlphabetGrid() {
+            const grid = document.getElementById('alphabetGrid');
+            
+            chechenAlphabet.forEach((item, index) => {
+                const flipCard = document.createElement('div');
+                flipCard.className = 'flip-card';
+                if (learnedLetters.includes(index)) {
+                    flipCard.classList.add('learned');
+                }
+                
+                const wordTranslation = wordTranslations[currentLanguage][index];
+                const flipHint = translations[currentLanguage].clickToFlip;
+                const flipBackHint = translations[currentLanguage].clickToFlipBack;
+                
+                flipCard.innerHTML = `
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="check-mark">✓</div>
+                            <button class="audio-btn" onclick="playSound('letter', ${index}); event.stopPropagation();"></button>
+                            <div class="chechen-letter">${item.letter}</div>
+                            <div class="letter-name">${item.name}</div>
+                            <div class="latin-equiv">${item.latin}</div>
+                            <div class="flip-hint">${flipHint}</div>
+                        </div>
+                        <div class="flip-card-back">
+                            <button class="audio-btn" onclick="playSound('letter', ${index}); event.stopPropagation();"></button>
+                            <div class="card-image">${item.emoji}</div>
+                            <div class="word-example">${wordTranslation.word}</div>
+                            <div class="word-translation">${wordTranslation.translation}</div>
+                            <div class="flip-hint">${flipBackHint}</div>
+                        </div>
+                    </div>
+                `;
+                
+                flipCard.onclick = (e) => {
+                    if (!e.target.classList.contains('audio-btn')) {
+                        flipCard.classList.toggle('flipped');
+                        
+                        // Mark as learned when flipped for the first time
+                        if (!learnedLetters.includes(index) && flipCard.classList.contains('flipped')) {
+                            setTimeout(() => {
+                                markAsLearned('letter', index);
+                            }, 600);
+                        }
+                    }
+                };
+                
+                grid.appendChild(flipCard);
+            });
+            
+            updateProgress('alphabet');
+        }
+
+        // Create numbers grid
+        function createNumbersGrid() {
+            const container = document.getElementById('numbersContent');
+            container.innerHTML = ''; // Clear existing content
+            
+            // Group numbers
+            const groups = [
+                { title: translations[currentLanguage].numbers0to10, start: 0, end: 10 },
+                { title: translations[currentLanguage].numbers11to20, start: 11, end: 20 },
+                { title: translations[currentLanguage].numbers21to100, start: 21, end: 37 }
+            ];
+            
+            groups.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'number-groups';
+                
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'number-group-title';
+                groupTitle.innerHTML = `<h3>${group.title}</h3>`;
+                groupDiv.appendChild(groupTitle);
+                
+                const grid = document.createElement('div');
+                grid.className = 'numbers-grid';
+                
+                for (let i = group.start; i <= group.end; i++) {
+                    const numberIndex = chechenNumbers.findIndex(n => n.digit === i);
+                    const numberData = chechenNumbers[numberIndex];
+                    
+                    if (numberData) {
+                        const flipCard = document.createElement('div');
+                        flipCard.className = 'flip-card';
+                        if (learnedNumbers.includes(i)) {
+                            flipCard.classList.add('learned');
+                        }
+                        
+                        const flipHint = translations[currentLanguage].clickToFlip;
+                        const flipBackHint = translations[currentLanguage].clickToFlipBack;
+                        
+                        // Get context for back of card - use default if not found
+                        let context = numberContexts[currentLanguage][i] || 
+                                     { visual: numberData.emoji, context: `${i} ${translations[currentLanguage].objects || 'objects'}` };
+                        
+                        flipCard.innerHTML = `
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front">
+                                    <div class="check-mark">✓</div>
+                                    <button class="audio-btn" onclick="playSound('number', ${i}); event.stopPropagation();"></button>
+                                    <div class="number-digit">${numberData.digit}</div>
+                                    <div class="number-chechen">${numberData.chechen}</div>
+                                    <div class="number-pronunciation">${numberData.pronunciation}</div>
+                                    <div class="flip-hint">${flipHint}</div>
+                                </div>
+                                <div class="flip-card-back">
+                                    <button class="audio-btn" onclick="playSound('number', ${i}); event.stopPropagation();"></button>
+                                    <div class="card-image">${numberData.emoji}</div>
+                                    <div class="number-visual">${context.visual}</div>
+                                    <div class="number-context">${context.context}</div>
+                                    <div class="flip-hint">${flipBackHint}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        flipCard.onclick = (e) => {
+                            if (!e.target.classList.contains('audio-btn')) {
+                                flipCard.classList.toggle('flipped');
+                                
+                                // Mark as learned when flipped for the first time
+                                if (!learnedNumbers.includes(i) && flipCard.classList.contains('flipped')) {
+                                    setTimeout(() => {
+                                        markAsLearned('number', i);
+                                    }, 600);
+                                }
+                            }
+                        };
+                        
+                        grid.appendChild(flipCard);
+                    }
+                }
+                
+                groupDiv.appendChild(grid);
+                container.appendChild(groupDiv);
+            });
+            
+            updateProgress('numbers');
+        }
+
+        // Mark item as learned
+        function markAsLearned(type, index) {
+            if (type === 'letter') {
+                if (!learnedLetters.includes(index)) {
+                    learnedLetters.push(index);
+                    localStorage.setItem('learnedLetters', JSON.stringify(learnedLetters));
+                    updateProgress('alphabet');
+                    
+                    const card = document.querySelectorAll('#alphabetGrid .flip-card')[index];
+                    card.classList.add('learned');
+                }
+            } else if (type === 'number') {
+                if (!learnedNumbers.includes(index)) {
+                    learnedNumbers.push(index);
+                    localStorage.setItem('learnedNumbers', JSON.stringify(learnedNumbers));
+                    updateProgress('numbers');
+                    
+                    // Find the card by number value
+                    const cards = document.querySelectorAll('#numbersContent .flip-card');
+                    cards.forEach(card => {
+                        const digit = card.querySelector('.number-digit').textContent;
+                        if (parseInt(digit) === index) {
+                            card.classList.add('learned');
+                        }
+                    });
+                }
+            }
+        }
+
+        // Update progress display
+        function updateProgress(type) {
+            if (type === 'alphabet') {
+                const progressBar = document.getElementById('alphabetProgressBar');
+                const lettersLearnedEl = document.getElementById('lettersLearned');
+                
+                const progress = (learnedLetters.length / chechenAlphabet.length) * 100;
+                progressBar.style.width = progress + '%';
+                lettersLearnedEl.textContent = learnedLetters.length;
+            } else if (type === 'numbers') {
+                const progressBar = document.getElementById('numbersProgressBar');
+                const numbersLearnedEl = document.getElementById('numbersLearned');
+                
+                const progress = (learnedNumbers.length / chechenNumbers.length) * 100;
+                progressBar.style.width = progress + '%';
+                numbersLearnedEl.textContent = learnedNumbers.length;
+            }
+        }
+
+        // Reset progress
+        function resetProgress(type) {
+            const confirmMessage = currentLanguage === 'ce' ? 'Бакъалла хьан кхиам дӀацӀанъян лаьа?' :
+                                  currentLanguage === 'ru' ? 'Вы уверены, что хотите сбросить прогресс?' :
+                                  currentLanguage === 'fr' ? 'Êtes-vous sûr de vouloir réinitialiser votre progression?' :
+                                  currentLanguage === 'ar' ? 'هل أنت متأكد من أنك تريد إعادة تعيين تقدمك؟' :
+                                  'Are you sure you want to reset your progress?';
+            
+            if (confirm(confirmMessage)) {
+                if (type === 'alphabet') {
+                    learnedLetters = [];
+                    localStorage.setItem('learnedLetters', JSON.stringify(learnedLetters));
+                    
+                    // Properly reset all alphabet cards
+                    document.querySelectorAll('#alphabetGrid .flip-card').forEach(card => {
+                        card.classList.remove('learned');
+                        card.classList.remove('flipped');
+                        // Reset the transform to ensure cards are shown from front
+                        const inner = card.querySelector('.flip-card-inner');
+                        if (inner) {
+                            inner.style.transform = '';
+                        }
+                    });
+                    
+                    updateProgress('alphabet');
+                    
+                    // Visual feedback
+                    const resetBtn = document.getElementById('resetAlphabetBtn');
+                    resetBtn.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        resetBtn.style.transform = '';
+                    }, 200);
+                    
+                } else if (type === 'numbers') {
+                    learnedNumbers = [];
+                    localStorage.setItem('learnedNumbers', JSON.stringify(learnedNumbers));
+                    
+                    // Properly reset all number cards
+                    document.querySelectorAll('#numbersContent .flip-card').forEach(card => {
+                        card.classList.remove('learned');
+                        card.classList.remove('flipped');
+                        // Reset the transform to ensure cards are shown from front
+                        const inner = card.querySelector('.flip-card-inner');
+                        if (inner) {
+                            inner.style.transform = '';
+                        }
+                    });
+                    
+                    updateProgress('numbers');
+                    
+                    // Visual feedback
+                    const resetBtn = document.getElementById('resetNumbersBtn');
+                    resetBtn.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        resetBtn.style.transform = '';
+                    }, 200);
+                }
+                
+                // Show success animation
+                showResetSuccess();
+            }
+        }
+        
+        // Show reset success animation
+        function showResetSuccess() {
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(76, 175, 80, 0.9);
+                color: white;
+                padding: 20px 40px;
+                border-radius: 20px;
+                font-size: 1.2em;
+                font-weight: bold;
+                z-index: 1000;
+                animation: fadeInOut 2s ease;
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInOut {
+                    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                    50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            successDiv.textContent = currentLanguage === 'ce' ? '✓ Кхиам дӀацӀанйина!' :
+                                    currentLanguage === 'ru' ? '✓ Прогресс сброшен!' :
+                                    currentLanguage === 'fr' ? '✓ Progression réinitialisée!' :
+                                    currentLanguage === 'ar' ? '✓ تم إعادة تعيين التقدم!' :
+                                    '✓ Progress Reset!';
+            
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.remove();
+                style.remove();
+            }, 2000);
+        }
+
+        // Placeholder for sound functionality
+        function playSound(type, index) {
+            // In a real app, this would play the pronunciation
+            if (type === 'letter') {
+                const letter = chechenAlphabet[index];
+                console.log(`Playing sound for letter: ${letter.letter} (${letter.name})`);
+            } else if (type === 'number') {
+                const number = chechenNumbers.find(n => n.digit === index);
+                if (number) {
+                    console.log(`Playing sound for number: ${number.digit} (${number.chechen})`);
+                }
+            }
+            
+            // Visual feedback
+            const btn = event.target;
+            btn.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 200);
+        }
+
+        // Refresh page function
+        function refreshPage() {
+            // Clear all caches
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+            
+            // Force reload with new timestamp
+            const newUrl = window.location.href.split('?')[0] + '?nocache=' + new Date().getTime();
+            window.location.href = newUrl;
+        }
+        
+        // Initialize the app
+        const savedLanguage = localStorage.getItem('preferredLanguage') || 'ce';
+        document.getElementById('languageSelect').value = savedLanguage;
+        changeLanguage(savedLanguage);
+        
+        // Clear cache on load
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => {
+                    caches.delete(name);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
