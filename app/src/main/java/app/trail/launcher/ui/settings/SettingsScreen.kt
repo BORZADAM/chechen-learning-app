@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,7 +35,7 @@ import app.trail.launcher.ui.theme.SmallStyle
 import app.trail.launcher.util.openIntent
 
 @Composable
-private fun SettingsRow(title: String, subtitle: String? = null, onClick: () -> Unit) {
+fun SettingsRow(title: String, subtitle: String? = null, onClick: () -> Unit) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -77,6 +78,9 @@ fun SettingsScreen() {
         SettingsRow("Favourites", "Choose and reorder the apps on your home screen") {
             Store.mode = Mode.FAVS
         }
+        SettingsRow("Widgets", "Add or remove widgets under the clock") {
+            Store.mode = Mode.WIDGETS
+        }
         SettingsRow("Set as default home app", "Choose Trail Launcher in the system home app screen") {
             openIntent(ctx, Intent(Settings.ACTION_HOME_SETTINGS))
         }
@@ -109,6 +113,20 @@ fun SettingsScreen() {
         SectionTitle("Appearance")
         OptionRow("Accent colour", "accent", listOf("From wallpaper", "White", "Blue", "Green", "Amber", "Rose"))
         OptionRow("App icons", "icons", listOf("Shown", "Hidden (names only)"))
+        val packs = remember { Store.iconPacks(ctx) }
+        val packName = packs.firstOrNull { it.first == Store.iconPack }?.second ?: "None"
+        SettingsRow(
+            "Icon pack",
+            if (packs.isEmpty()) "None installed. Install any icon pack app, then come back" else "$packName. Tap to change"
+        ) {
+            if (packs.isNotEmpty()) {
+                val names = listOf("") + packs.map { it.first }
+                val i = names.indexOf(Store.iconPack)
+                Store.setPack(ctx, names[(i + 1) % names.size])
+            }
+        }
+        OptionRow("Icon style", "iconStyle", listOf("Original", "Monochrome"))
+        OptionRow("Widget height", "widgetHeight", listOf("Small", "Medium", "Large", "Extra large"))
         OptionRow("Icon size", "iconSize", listOf("Small", "Medium", "Large"))
         OptionRow("App name size", "labelSize", listOf("Small", "Medium", "Large"))
         OptionRow("Left-edge shading", "vignette", listOf("On", "Off"))

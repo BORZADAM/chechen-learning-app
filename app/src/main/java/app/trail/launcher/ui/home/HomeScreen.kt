@@ -65,6 +65,7 @@ fun HomeScreen(mode: Mode, onScrubbing: (Boolean) -> Unit) {
                     .fillMaxWidth()
                     .fillMaxHeight(0.25f)
             )
+            if (mode == Mode.HOME) WidgetSlot()
             Crossfade(
                 targetState = mode == Mode.ALL,
                 animationSpec = trailSpring(),
@@ -140,7 +141,8 @@ private fun FavoritesColumn(favs: List<AppEntry>) {
                     Modifier.graphicsLayer {
                         alpha = a.value.coerceIn(0f, 1f)
                         translationY = (1f - a.value) * 12.dp.toPx()
-                    }
+                    },
+                    folderHost = true
                 )
             }
         }

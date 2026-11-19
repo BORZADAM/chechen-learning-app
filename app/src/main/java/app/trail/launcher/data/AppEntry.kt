@@ -17,4 +17,4 @@ data class AppEntry(
         }
 }
 
-enum class Mode { HOME, ALL, SEARCH, SETTINGS, FAVS }
+enum class Mode { HOME, ALL, SEARCH, SETTINGS, FAVS, WIDGETS }

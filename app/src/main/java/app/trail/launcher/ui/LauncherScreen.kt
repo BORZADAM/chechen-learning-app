@@ -25,11 +25,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import app.trail.launcher.data.Mode
 import app.trail.launcher.data.Store
+import app.trail.launcher.ui.home.FolderPopup
 import app.trail.launcher.ui.home.HomeScreen
 import app.trail.launcher.ui.home.MeshBackground
 import app.trail.launcher.ui.search.SearchScreen
 import app.trail.launcher.ui.settings.FavouritesScreen
 import app.trail.launcher.ui.settings.SettingsScreen
+import app.trail.launcher.ui.settings.WidgetScreen
 import app.trail.launcher.ui.theme.trailSpring
 import app.trail.launcher.util.expandShade
 
@@ -43,11 +45,15 @@ fun LauncherScreen() {
     var scrubbing by remember { mutableStateOf(false) }
 
     BackHandler(enabled = true) {
-        Store.mode = if (mode == Mode.FAVS) Mode.SETTINGS else Mode.HOME
+        if (Store.openFolder != null) {
+            Store.openFolder = null
+        } else {
+            Store.mode = if (mode == Mode.FAVS || mode == Mode.WIDGETS) Mode.SETTINGS else Mode.HOME
+        }
     }
 
     val dim by animateFloatAsState(
-        if (scrubbing || mode != Mode.HOME) MAX_DIM else 0f,
+        if (scrubbing || mode != Mode.HOME || Store.openFolder != null) MAX_DIM else 0f,
         trailSpring(),
         label = "scrim"
     )
@@ -69,12 +75,13 @@ fun LauncherScreen() {
     }
 
     val threshold = with(LocalDensity.current) { 72.dp.toPx() }
+    val folderOpen = Store.openFolder != null
 
     Box(
         Modifier
             .fillMaxSize()
-            .pointerInput(mode) {
-                if (mode != Mode.HOME) return@pointerInput
+            .pointerInput(mode, folderOpen) {
+                if (mode != Mode.HOME || folderOpen) return@pointerInput
                 var total = 0f
                 var fired = false
                 detectVerticalDragGestures(
@@ -124,9 +131,11 @@ fun LauncherScreen() {
             when (mode) {
                 Mode.SETTINGS -> SettingsScreen()
                 Mode.FAVS -> FavouritesScreen()
+                Mode.WIDGETS -> WidgetScreen()
                 Mode.SEARCH -> SearchScreen()
                 else -> HomeScreen(mode) { scrubbing = it }
             }
+            FolderPopup()
         }
     }
 }

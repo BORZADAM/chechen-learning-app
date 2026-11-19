@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import app.trail.launcher.data.Mode
 import app.trail.launcher.data.Store
+import app.trail.launcher.data.WidgetHost
 import app.trail.launcher.ui.LauncherScreen
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +41,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        WidgetHost.start(this)
+    }
+
+    override fun onStop() {
+        WidgetHost.stop(this)
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
         Store.refreshAccent(this)
@@ -48,6 +59,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        Store.openFolder = null
         Store.mode = Mode.HOME
         Store.homeEpoch = Store.homeEpoch + 1
     }

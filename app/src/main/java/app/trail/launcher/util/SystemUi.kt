@@ -13,6 +13,7 @@ fun launchApp(ctx: Context, e: AppEntry) {
         ctx.getSystemService(LauncherApps::class.java).startMainActivity(e.component, e.user, null, null)
     } catch (_: Exception) {
     }
+    Store.openFolder = null
     Store.mode = Mode.HOME
 }
 
