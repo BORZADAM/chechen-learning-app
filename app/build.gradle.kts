@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "app.trail.launcher"
-        minSdk = 26
+        minSdk = 34
         targetSdk = 35
         versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
         versionName = "0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "1")
