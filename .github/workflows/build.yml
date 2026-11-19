@@ -1,0 +1,59 @@
+name: Build APK
+
+on:
+  push:
+    branches: [launcher]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          gradle --no-daemon assembleRelease 2>&1 | tee build.log
+
+      - name: Publish build log
+        if: always()
+        run: |
+          mkdir ci-out && cd ci-out
+          echo "${{ steps.build.outcome }} run=${{ github.run_number }} sha=${{ github.sha }}" > status.txt
+          grep -nE "^e: |error:|FAILED|What went wrong" -A8 ../build.log | head -400 > errors.txt || true
+          tail -150 ../build.log > tail.txt || true
+          git init -q -b ci-log
+          git add .
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "ci log"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-log
+
+      - name: Release
+        if: steps.build.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk trail-launcher.apk
+          gh release create "v${{ github.run_number }}" trail-launcher.apk \
+            --target "${{ github.sha }}" \
+            --title "Trail Launcher build ${{ github.run_number }}" \
+            --notes "Automatic build. Download trail-launcher.apk and open it on your phone to install or update." \
+            --latest
+
+      - name: Fail if build failed
+        if: steps.build.outcome != 'success'
+        run: exit 1
