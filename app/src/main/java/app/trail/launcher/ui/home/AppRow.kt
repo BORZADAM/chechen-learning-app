@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.trail.launcher.data.AppEntry
 import app.trail.launcher.data.Store
 import app.trail.launcher.ui.theme.LabelStyle
@@ -38,6 +39,7 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun AppIcon(e: AppEntry, size: Dp = 40.dp) {
+    if (size.value <= 0f) return
     val ctx = LocalContext.current
     val bmp by produceState(Store.cachedIcon(e.key), e.key) {
         if (value == null) {
@@ -58,17 +60,22 @@ fun AppRow(e: AppEntry, modifier: Modifier = Modifier) {
     val ctx = LocalContext.current
     var menu by remember { mutableStateOf(false) }
     val isFav = e.key in Store.favs
+    val showIcons = Store.opt("icons") == 0
+    val iconSize = listOf(32, 40, 48)[Store.opt("iconSize").coerceIn(0, 2)]
+    val labelSize = listOf(17, 20, 23)[Store.opt("labelSize").coerceIn(0, 2)]
     Box(modifier) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .height(54.dp)
+                .height((iconSize + 14).dp)
                 .combinedClickable(onClick = { launchApp(ctx, e) }, onLongClick = { menu = true }),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AppIcon(e)
-            Spacer(Modifier.width(16.dp))
-            Text(e.label, style = LabelStyle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (showIcons) {
+                AppIcon(e, iconSize.dp)
+                Spacer(Modifier.width(16.dp))
+            }
+            Text(e.label, style = LabelStyle.copy(fontSize = labelSize.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
             DropdownMenuItem(

@@ -47,6 +47,18 @@ private fun SettingsRow(title: String, subtitle: String? = null, onClick: () -> 
 }
 
 @Composable
+private fun OptionRow(title: String, key: String, labels: List<String>) {
+    val ctx = LocalContext.current
+    val i = Store.opt(key).coerceIn(0, labels.size - 1)
+    SettingsRow(title, labels[i]) { Store.cycle(ctx, key, labels.size) }
+}
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(text, style = LabelStyle.copy(fontSize = 20.sp, color = Store.accentColor()), modifier = Modifier.padding(top = 24.dp, bottom = 4.dp))
+}
+
+@Composable
 fun SettingsScreen() {
     val ctx = LocalContext.current
     val epoch = Store.homeEpoch
@@ -83,7 +95,27 @@ fun SettingsScreen() {
         SettingsRow("Change system wallpaper") {
             openIntent(ctx, Intent.createChooser(Intent(Intent.ACTION_SET_WALLPAPER), "Wallpaper"))
         }
-        Text("Hidden apps", style = LabelStyle.copy(fontSize = 20.sp), modifier = Modifier.padding(top = 24.dp, bottom = 8.dp))
+        SectionTitle("Clock")
+        OptionRow("Clock", "clock", listOf("Shown", "Hidden"))
+        OptionRow("Clock size", "clockSize", listOf("Small", "Medium", "Large"))
+        OptionRow("Clock weight", "clockWeight", listOf("Thin", "Light", "Regular", "Bold"))
+        OptionRow("Time format", "clockFormat", listOf("Follow system", "12-hour", "24-hour"))
+        OptionRow("Seconds", "clockSeconds", listOf("Off", "On"))
+
+        SectionTitle("Date and calendar")
+        OptionRow("Date", "dateStyle", listOf("Thursday, 19 November", "Thu 19 Nov", "19/11/2026", "Hidden"))
+        OptionRow("Calendar event", "event", listOf("Next event this week", "Today's events only", "Hidden"))
+
+        SectionTitle("Appearance")
+        OptionRow("Accent colour", "accent", listOf("From wallpaper", "White", "Blue", "Green", "Amber", "Rose"))
+        OptionRow("App icons", "icons", listOf("Shown", "Hidden (names only)"))
+        OptionRow("Icon size", "iconSize", listOf("Small", "Medium", "Large"))
+        OptionRow("App name size", "labelSize", listOf("Small", "Medium", "Large"))
+        OptionRow("Left-edge shading", "vignette", listOf("On", "Off"))
+        OptionRow("Background blur", "blur", listOf("On", "Off"))
+        OptionRow("Scrubber vibration", "haptics", listOf("On", "Off"))
+
+        SectionTitle("Hidden apps")
         if (hiddenApps.isEmpty()) {
             Text("None. Long-press an app to hide it.", style = SmallStyle)
         }

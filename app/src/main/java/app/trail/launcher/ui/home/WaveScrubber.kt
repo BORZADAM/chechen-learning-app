@@ -84,7 +84,7 @@ fun WaveScrubber(
                         val c = entries[idx]
                         if (c != current) {
                             current = c
-                            view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                            if (Store.opt("haptics") == 0) view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                             pick(c)
                         }
                     }

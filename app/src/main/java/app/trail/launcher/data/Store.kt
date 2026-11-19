@@ -8,6 +8,7 @@ import android.os.UserManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -28,6 +29,27 @@ object Store {
     var accent by mutableStateOf(Color(0xFF9CC4FF))
     var touchY by mutableFloatStateOf(0.5f)
 
+    /** Customisation options, each stored as the index of the chosen value. */
+    val opts = mutableStateMapOf<String, Int>()
+    private val optDefaults = mapOf("clockSize" to 1, "clockWeight" to 1, "iconSize" to 1, "labelSize" to 1)
+    private val accentPresets = listOf(
+        Color.White, Color(0xFF8AB4F8), Color(0xFF81C995), Color(0xFFFDD663), Color(0xFFF28B9B)
+    )
+
+    fun opt(key: String): Int = opts[key] ?: optDefaults[key] ?: 0
+
+    fun cycle(ctx: Context, key: String, count: Int) {
+        val v = (opt(key) + 1) % count
+        opts[key] = v
+        prefs(ctx).edit().putInt("opt_" + key, v).apply()
+    }
+
+    /** Accent in use: wallpaper-derived by default, or one of the presets. */
+    fun accentColor(): Color {
+        val i = opt("accent")
+        return if (i == 0) accent else accentPresets[(i - 1).coerceIn(0, accentPresets.size - 1)]
+    }
+
     private val infos = ConcurrentHashMap<String, LauncherActivityInfo>()
     private val icons = ConcurrentHashMap<String, ImageBitmap>()
 
@@ -38,6 +60,9 @@ object Store {
         favs = (p.getString("favs", "") ?: "").split("\n").filter { it.isNotBlank() }
         hidden = (p.getString("hidden", "") ?: "").split("\n").filter { it.isNotBlank() }.toSet()
         meshWallpaper = p.getBoolean("mesh", false)
+        for ((k, v) in p.all) {
+            if (k.startsWith("opt_") && v is Int) opts[k.removePrefix("opt_")] = v
+        }
         reload(ctx)
         refreshAccent(ctx)
     }

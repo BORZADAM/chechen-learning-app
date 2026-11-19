@@ -53,7 +53,8 @@ fun LauncherScreen() {
     )
 
     // Blur whatever is behind the window (the wallpaper) in step with the scrim.
-    val blur = ((dim / MAX_DIM) * 10f).toInt().coerceIn(0, 10) * 4
+    val blurOn = Store.opt("blur") == 0
+    val blur = if (blurOn) ((dim / MAX_DIM) * 10f).toInt().coerceIn(0, 10) * 4 else 0
     val activity = ctx as? Activity
     LaunchedEffect(blur) {
         try {
@@ -97,7 +98,7 @@ fun LauncherScreen() {
     ) {
         if (Store.meshWallpaper) MeshBackground(Modifier.fillMaxSize())
         // Left-edge vignette keeps white text readable on bright wallpapers.
-        Box(
+        if (Store.opt("vignette") == 0) Box(
             Modifier
                 .fillMaxSize()
                 .background(

@@ -14,14 +14,23 @@ object CalendarRepo {
     fun hasPermission(ctx: Context): Boolean =
         ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
 
-    /** Next timed event in the coming week, read from the on-device calendar only. */
-    fun nextEvent(ctx: Context): String? {
+    /** Next timed event today or in the coming week, read from the on-device calendar only. */
+    fun nextEvent(ctx: Context, todayOnly: Boolean = false): String? {
         if (!hasPermission(ctx)) return null
         try {
             val now = System.currentTimeMillis()
             val builder = CalendarContract.Instances.CONTENT_URI.buildUpon()
             ContentUris.appendId(builder, now)
-            ContentUris.appendId(builder, now + 7L * 24 * 3600 * 1000)
+            val end = if (todayOnly) {
+                val cal = java.util.Calendar.getInstance()
+                cal.set(java.util.Calendar.HOUR_OF_DAY, 23)
+                cal.set(java.util.Calendar.MINUTE, 59)
+                cal.set(java.util.Calendar.SECOND, 59)
+                cal.timeInMillis
+            } else {
+                now + 7L * 24 * 3600 * 1000
+            }
+            ContentUris.appendId(builder, end)
             val projection = arrayOf(
                 CalendarContract.Instances.TITLE,
                 CalendarContract.Instances.BEGIN,

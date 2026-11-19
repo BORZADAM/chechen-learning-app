@@ -83,7 +83,7 @@ fun HomeScreen(mode: Mode, onScrubbing: (Boolean) -> Unit) {
         }
         WaveScrubber(
             entries = entries,
-            accent = Store.accent,
+            accent = Store.accentColor(),
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .fillMaxHeight(0.72f),
