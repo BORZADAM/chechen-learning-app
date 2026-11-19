@@ -14,6 +14,9 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
+import android.content.pm.ShortcutInfo
+import org.json.JSONArray
+import org.json.JSONObject
 import android.os.UserManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -43,6 +46,7 @@ object Store {
     var folders by mutableStateOf(mapOf<String, List<String>>())
     var openFolder by mutableStateOf<String?>(null)
     var widgets by mutableStateOf(listOf<Int>())
+    var labels by mutableStateOf(mapOf<String, String>())
     var iconPack by mutableStateOf("")
     var iconEpoch by mutableIntStateOf(0)
 
@@ -89,6 +93,10 @@ object Store {
             .map { it.split("\t") }
             .filter { it.size > 1 }
             .associate { it[0] to it.drop(1) }
+        labels = (p.getString("labels", "") ?: "").split("\n").filter { it.isNotBlank() }
+            .map { it.split("\t") }
+            .filter { it.size == 2 }
+            .associate { it[0] to it[1] }
         widgets = (p.getString("widgets", "") ?: "").split(",").mapNotNull { it.trim().toIntOrNull() }
         iconPack = p.getString("iconPack", "") ?: ""
         for ((k, v) in p.all) {
@@ -106,6 +114,7 @@ object Store {
             .putBoolean("mesh", meshWallpaper)
             .putString("folders", folders.entries.joinToString("\n") { (k, v) -> (listOf(k) + v).joinToString("\t") })
             .putString("widgets", widgets.joinToString(","))
+            .putString("labels", labels.entries.joinToString("\n") { (k, v) -> k + "\t" + v })
             .putString("iconPack", iconPack)
             .apply()
     }
@@ -121,7 +130,7 @@ object Store {
                     if (cn.packageName == ctx.packageName) continue
                     val key = cn.flattenToShortString() + "#" + um.getSerialNumberForUser(user)
                     infos[key] = info
-                    list.add(AppEntry(key, info.label.toString(), cn, user))
+                    list.add(AppEntry(key, labels[key] ?: info.label.toString(), cn, user))
                 }
             } catch (_: Exception) {
             }
@@ -170,6 +179,84 @@ object Store {
         val next = if (appKey in cur) cur - appKey else cur + appKey
         folders = if (next.isEmpty()) folders - favKey else folders + (favKey to next)
         save(ctx)
+    }
+
+    /** Custom app name. A blank name restores the original. */
+    fun rename(ctx: Context, key: String, name: String) {
+        val clean = name.replace("\t", " ").replace("\n", " ").trim()
+        labels = if (clean.isEmpty()) labels - key else labels + (key to clean)
+        save(ctx)
+        reload(ctx)
+    }
+
+    /** The app's own quick actions. Only available while Trail is the default home app. */
+    fun shortcuts(ctx: Context, e: AppEntry): List<ShortcutInfo> = try {
+        val la = ctx.getSystemService(LauncherApps::class.java)
+        if (!la.hasShortcutHostPermission()) {
+            emptyList()
+        } else {
+            val q = LauncherApps.ShortcutQuery()
+                .setPackage(e.pkg)
+                .setQueryFlags(
+                    LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED
+                )
+            (la.getShortcuts(q, e.user) ?: emptyList()).filter { it.isEnabled }.take(4)
+        }
+    } catch (_: Exception) {
+        emptyList()
+    }
+
+    fun exportJson(): String {
+        val o = JSONObject()
+        o.put("favs", JSONArray(favs))
+        o.put("hidden", JSONArray(hidden.toList()))
+        o.put("iconPack", iconPack)
+        o.put("mesh", meshWallpaper)
+        val f = JSONObject()
+        for ((k, v) in folders) f.put(k, JSONArray(v))
+        o.put("folders", f)
+        val l = JSONObject()
+        for ((k, v) in labels) l.put(k, v)
+        o.put("labels", l)
+        val op = JSONObject()
+        for ((k, v) in opts) op.put(k, v)
+        o.put("opts", op)
+        return o.toString(2)
+    }
+
+    fun importJson(ctx: Context, text: String): Boolean = try {
+        val o = JSONObject(text)
+        fun strings(a: JSONArray?): List<String> =
+            if (a == null) emptyList() else (0 until a.length()).map { a.getString(it) }
+        favs = strings(o.optJSONArray("favs"))
+        hidden = strings(o.optJSONArray("hidden")).toSet()
+        meshWallpaper = o.optBoolean("mesh", false)
+        val f = o.optJSONObject("folders")
+        val fm = HashMap<String, List<String>>()
+        if (f != null) for (k in f.keys()) fm[k] = strings(f.optJSONArray(k))
+        folders = fm
+        val l = o.optJSONObject("labels")
+        val lm = HashMap<String, String>()
+        if (l != null) for (k in l.keys()) lm[k] = l.getString(k)
+        labels = lm
+        val op = o.optJSONObject("opts")
+        val edit = prefs(ctx).edit()
+        if (op != null) {
+            for (k in op.keys()) {
+                val v = op.getInt(k)
+                opts[k] = v
+                edit.putInt("opt_" + k, v)
+            }
+        }
+        edit.apply()
+        save(ctx)
+        reload(ctx)
+        setPack(ctx, o.optString("iconPack", ""))
+        true
+    } catch (_: Exception) {
+        false
     }
 
     fun addWidget(ctx: Context, id: Int) {

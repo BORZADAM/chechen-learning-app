@@ -19,7 +19,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -68,6 +71,27 @@ fun SettingsScreen() {
         Store.homeEpoch = Store.homeEpoch + 1
     }
     val hiddenApps = Store.apps.filter { it.key in Store.hidden }
+    var backupNote by remember { mutableStateOf<String?>(null) }
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) {
+            backupNote = try {
+                ctx.contentResolver.openOutputStream(uri)?.use { it.write(Store.exportJson().toByteArray()) }
+                "Backup saved"
+            } catch (_: Exception) {
+                "Backup failed"
+            }
+        }
+    }
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            backupNote = try {
+                val text = ctx.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) } ?: ""
+                if (Store.importJson(ctx, text)) "Settings restored" else "That file is not a Trail backup"
+            } catch (_: Exception) {
+                "Restore failed"
+            }
+        }
+    }
     Column(
         Modifier
             .fillMaxSize()
@@ -132,6 +156,20 @@ fun SettingsScreen() {
         OptionRow("Left-edge shading", "vignette", listOf("On", "Off"))
         OptionRow("Background blur", "blur", listOf("On", "Off"))
         OptionRow("Scrubber vibration", "haptics", listOf("On", "Off"))
+
+        SectionTitle("Gestures")
+        val actions = listOf("Nothing", "Open search", "Show all apps", "Open notifications", "Open quick settings", "Open settings")
+        OptionRow("Double-tap empty space", "gDoubleTap", actions)
+        OptionRow("Swipe left", "gSwipeLeft", actions)
+        Text("Swipe up for search, swipe down for notifications and swipe right on a favourite for its folder are always on.", style = SmallStyle)
+
+        SectionTitle("Backup")
+        SettingsRow("Back up settings", backupNote ?: "Save favourites, folders, names and options to a file") {
+            exportLauncher.launch("trail-backup.json")
+        }
+        SettingsRow("Restore settings", "Load a backup file. Widgets are not included") {
+            importLauncher.launch(arrayOf("application/json", "*/*"))
+        }
 
         SectionTitle("Hidden apps")
         if (hiddenApps.isEmpty()) {

@@ -4,6 +4,8 @@ import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +36,7 @@ import app.trail.launcher.ui.settings.SettingsScreen
 import app.trail.launcher.ui.settings.WidgetScreen
 import app.trail.launcher.ui.theme.trailSpring
 import app.trail.launcher.util.expandShade
+import app.trail.launcher.util.performGesture
 
 private const val MAX_DIM = 0.55f
 
@@ -76,10 +79,33 @@ fun LauncherScreen() {
 
     val threshold = with(LocalDensity.current) { 72.dp.toPx() }
     val folderOpen = Store.openFolder != null
+    val doubleTapOn = Store.opt("gDoubleTap") != 0
+    val swipeLeftOn = Store.opt("gSwipeLeft") != 0
 
     Box(
         Modifier
             .fillMaxSize()
+            .pointerInput(mode, folderOpen, doubleTapOn) {
+                if (mode != Mode.HOME || folderOpen || !doubleTapOn) return@pointerInput
+                detectTapGestures(onDoubleTap = { performGesture(ctx, "gDoubleTap") })
+            }
+            .pointerInput(mode, folderOpen, swipeLeftOn) {
+                if (mode != Mode.HOME || folderOpen || !swipeLeftOn) return@pointerInput
+                var total = 0f
+                var fired = false
+                detectHorizontalDragGestures(
+                    onDragStart = {
+                        total = 0f
+                        fired = false
+                    }
+                ) { _, dx ->
+                    total += dx
+                    if (!fired && total < -threshold) {
+                        fired = true
+                        performGesture(ctx, "gSwipeLeft")
+                    }
+                }
+            }
             .pointerInput(mode, folderOpen) {
                 if (mode != Mode.HOME || folderOpen) return@pointerInput
                 var total = 0f

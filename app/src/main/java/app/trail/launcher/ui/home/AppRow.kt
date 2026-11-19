@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +41,8 @@ import app.trail.launcher.data.Store
 import app.trail.launcher.ui.theme.LabelStyle
 import app.trail.launcher.util.launchApp
 import app.trail.launcher.util.openIntent
+import app.trail.launcher.util.performGesture
+import app.trail.launcher.util.startShortcut
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -67,6 +72,8 @@ fun AppIcon(e: AppEntry, size: Dp = 40.dp) {
 fun AppRow(e: AppEntry, modifier: Modifier = Modifier, folderHost: Boolean = false) {
     val ctx = LocalContext.current
     var menu by remember { mutableStateOf(false) }
+    var renaming by remember { mutableStateOf(false) }
+    val shortcuts = remember(menu) { if (menu) Store.shortcuts(ctx, e) else emptyList() }
     val isFav = e.key in Store.favs
     val showIcons = Store.opt("icons") == 0
     val folderCount = if (folderHost) Store.folders[e.key]?.size ?: 0 else 0
@@ -84,6 +91,9 @@ fun AppRow(e: AppEntry, modifier: Modifier = Modifier, folderHost: Boolean = fal
                 if (!fired && total > 48.dp.toPx()) {
                     fired = true
                     Store.openFolder = e.key
+                } else if (!fired && total < -48.dp.toPx()) {
+                    fired = true
+                    performGesture(ctx, "gSwipeLeft")
                 }
             }
         }
@@ -117,6 +127,12 @@ fun AppRow(e: AppEntry, modifier: Modifier = Modifier, folderHost: Boolean = fal
             }
         }
         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+            for (s in shortcuts) {
+                DropdownMenuItem(
+                    text = { Text(s.shortLabel?.toString() ?: "Shortcut") },
+                    onClick = { menu = false; startShortcut(ctx, s) }
+                )
+            }
             DropdownMenuItem(
                 text = { Text(if (isFav) "Remove from favourites" else "Add to favourites") },
                 onClick = { menu = false; Store.toggleFav(ctx, e.key) }
@@ -128,6 +144,7 @@ fun AppRow(e: AppEntry, modifier: Modifier = Modifier, folderHost: Boolean = fal
                 DropdownMenuItem(text = { Text("Move up") }, onClick = { menu = false; Store.moveFav(ctx, e.key, -1) })
                 DropdownMenuItem(text = { Text("Move down") }, onClick = { menu = false; Store.moveFav(ctx, e.key, 1) })
             }
+            DropdownMenuItem(text = { Text("Rename") }, onClick = { menu = false; renaming = true })
             DropdownMenuItem(text = { Text("Hide app") }, onClick = { menu = false; Store.toggleHidden(ctx, e.key) })
             DropdownMenuItem(
                 text = { Text("App info") },
@@ -148,5 +165,23 @@ fun AppRow(e: AppEntry, modifier: Modifier = Modifier, folderHost: Boolean = fal
                 }
             )
         }
+        if (renaming) RenameDialog(e) { renaming = false }
     }
+}
+
+@Composable
+private fun RenameDialog(e: AppEntry, onClose: () -> Unit) {
+    val ctx = LocalContext.current
+    var text by remember { mutableStateOf(e.label) }
+    AlertDialog(
+        onDismissRequest = onClose,
+        title = { Text("Rename app") },
+        text = { TextField(value = text, onValueChange = { text = it }, singleLine = true) },
+        confirmButton = {
+            TextButton(onClick = { Store.rename(ctx, e.key, text); onClose() }) { Text("Save") }
+        },
+        dismissButton = {
+            TextButton(onClick = { Store.rename(ctx, e.key, ""); onClose() }) { Text("Reset name") }
+        }
+    )
 }
