@@ -83,7 +83,7 @@ data class AppEntry(
         }
 }
 
-enum class Mode { HOME, ALL, SEARCH, SETTINGS }
+enum class Mode { HOME, ALL, SEARCH, SETTINGS, FAVS }
 
 object Store {
     var apps by mutableStateOf(listOf<AppEntry>())
@@ -269,7 +269,7 @@ private fun expandShade(ctx: Context) {
 @Composable
 fun LauncherScreen() {
     val mode = Store.mode
-    BackHandler(enabled = true) { Store.mode = Mode.HOME }
+    BackHandler(enabled = true) { Store.mode = if (mode == Mode.FAVS) Mode.SETTINGS else Mode.HOME }
     Box(
         Modifier
             .fillMaxSize()
@@ -280,6 +280,7 @@ fun LauncherScreen() {
         when (mode) {
             Mode.SETTINGS -> SettingsScreen()
             Mode.SEARCH -> SearchScreen()
+            Mode.FAVS -> FavouritesScreen()
             else -> HomeScreen(mode)
         }
     }
@@ -578,6 +579,9 @@ private fun SettingsScreen() {
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Text("Settings", style = labelStyle.copy(fontSize = 28.sp), modifier = Modifier.padding(vertical = 16.dp))
+        SettingsRow("Favourites", "Choose and reorder the apps on your home screen") {
+            Store.mode = Mode.FAVS
+        }
         SettingsRow("Set as default home app", "Choose Trail Launcher in the system home app screen") {
             openIntent(ctx, Intent(Settings.ACTION_HOME_SETTINGS))
         }
@@ -592,5 +596,77 @@ private fun SettingsScreen() {
             SettingsRow(e.label, "Tap to unhide") { Store.toggleHidden(ctx, e.key) }
         }
         SettingsRow("Back") { Store.mode = Mode.HOME }
+    }
+}
+
+@Composable
+private fun FavButton(symbol: String, onClick: () -> Unit) {
+    Text(
+        symbol,
+        style = labelStyle,
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+    )
+}
+
+@Composable
+private fun FavouritesScreen() {
+    val ctx = LocalContext.current
+    val hidden = Store.hidden
+    val visible = Store.apps.filter { it.key !in hidden }
+    val favs = Store.favs
+    val favApps = favs.mapNotNull { k -> visible.firstOrNull { it.key == k } }
+    LazyColumn(
+        Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp)
+    ) {
+        item(key = "title-favs") {
+            Text("Favourites", style = labelStyle.copy(fontSize = 28.sp), modifier = Modifier.padding(top = 32.dp, bottom = 8.dp))
+        }
+        if (favApps.isEmpty()) {
+            item(key = "empty") {
+                Text("None yet. Tap an app below to add it.", style = smallStyle)
+            }
+        }
+        items(favApps, key = { "f" + it.key }) { e ->
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AppIcon(e)
+                Spacer(Modifier.width(16.dp))
+                Text(e.label, style = labelStyle, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                FavButton("\u2191") { Store.moveFav(ctx, e.key, -1) }
+                FavButton("\u2193") { Store.moveFav(ctx, e.key, 1) }
+                FavButton("\u2715") { Store.toggleFav(ctx, e.key) }
+            }
+        }
+        item(key = "title-all") {
+            Column(Modifier.padding(top = 24.dp, bottom = 8.dp)) {
+                Text("All apps", style = labelStyle.copy(fontSize = 20.sp))
+                Text("Tap an app to add or remove it", style = smallStyle)
+            }
+        }
+        items(visible, key = { "a" + it.key }) { e ->
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { Store.toggleFav(ctx, e.key) }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AppIcon(e)
+                Spacer(Modifier.width(16.dp))
+                Text(e.label, style = labelStyle, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                Text(if (e.key in favs) "\u2713" else "+", style = labelStyle, modifier = Modifier.padding(horizontal = 14.dp))
+            }
+        }
+        item(key = "back") {
+            SettingsRow("Back") { Store.mode = Mode.SETTINGS }
+        }
     }
 }
