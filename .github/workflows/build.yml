@@ -1,0 +1,82 @@
+name: Build Grace fork
+
+on:
+  push:
+    branches: [grace]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          chmod +x gradlew
+          ./gradlew --no-daemon --no-configuration-cache assembleRelease 2>&1 | tee build.log
+
+      - name: Collect results
+        if: always()
+        run: |
+          mkdir ci-out
+          echo "${{ steps.build.outcome }} grace sha=${{ github.sha }}" > ci-out/status.txt
+          grep -nE "^e: |error:|FAILED|What went wrong" -A8 build.log | head -400 > ci-out/errors.txt || true
+          tail -150 build.log > ci-out/tail.txt || true
+          ls -la app/build/outputs/apk/release/ > ci-out/outputs.txt 2>&1 || true
+          cp app/build/outputs/apk/release/*.apk ci-out/grace-launcher.apk 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ci-out
+          path: ci-out
+
+  publish:
+    needs: build
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ci-out
+          path: ci-out
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if [ -f ci-out/grace-launcher.apk ]; then
+            gh release delete grace-latest --cleanup-tag -y || true
+            sleep 3
+            gh release create grace-latest ci-out/grace-launcher.apk \
+              --target "${{ github.sha }}" \
+              --title "Grace Launcher (personal fork)" \
+              --notes "Automatic build of the personal Grace Launcher fork. See FORK-NOTES.md on the grace branch." \
+              --latest=false
+            echo "released" >> ci-out/status.txt
+          fi
+
+      - name: Publish build log
+        run: |
+          cd ci-out
+          rm -f grace-launcher.apk
+          git init -q -b ci-log
+          git add .
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "ci log"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-log
