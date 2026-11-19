@@ -61,7 +61,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
@@ -571,7 +570,6 @@ private fun SettingsRow(title: String, subtitle: String? = null, onClick: () -> 
 @Composable
 private fun SettingsScreen() {
     val ctx = LocalContext.current
-    val hasNotifAccess = NotificationManagerCompat.getEnabledListenerPackages(ctx).contains(ctx.packageName)
     val hiddenApps = Store.apps.filter { it.key in Store.hidden }
     Column(
         Modifier
@@ -582,12 +580,6 @@ private fun SettingsScreen() {
         Text("Settings", style = labelStyle.copy(fontSize = 28.sp), modifier = Modifier.padding(vertical = 16.dp))
         SettingsRow("Set as default home app", "Choose Trail Launcher in the system home app screen") {
             openIntent(ctx, Intent(Settings.ACTION_HOME_SETTINGS))
-        }
-        SettingsRow(
-            "Notification previews",
-            if (hasNotifAccess) "Access granted" else "Tap to grant notification access"
-        ) {
-            openIntent(ctx, Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
         SettingsRow("Change wallpaper") {
             openIntent(ctx, Intent.createChooser(Intent(Intent.ACTION_SET_WALLPAPER), "Wallpaper"))
