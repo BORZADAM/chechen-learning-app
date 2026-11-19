@@ -1,23 +1,28 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
+    alias(libs.plugins.aboutlibraries)
 }
 
 android {
-    namespace = "app.trail.launcher"
-    compileSdk = 35
+    namespace = "com.galaxyrio.gracelauncher"
+    compileSdk = 37
+    buildToolsVersion = "36.1.0"
 
     defaultConfig {
         applicationId = "app.trail.launcher"
-        minSdk = 34
-        targetSdk = 35
-        versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
-        versionName = "0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "1")
+        minSdk = 28
+        targetSdk = 37
+        versionCode = 16
+        versionName = "1.2.4"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
-        create("release") {
+        create("personal") {
             storeFile = file("../keystore/release.jks")
             storePassword = "trail-launcher"
             keyAlias = "trail"
@@ -27,33 +32,77 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
+            optimization {
+                enable = true
+            }
+            signingConfig = signingConfigs.getByName("personal")
         }
     }
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
     }
+    androidResources {
+        // Map bundled fonts directly; variable weights share the same native
+        // font buffer instead of inflating separate copies on the UI thread.
+        noCompress += "ttf"
+    }
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs.
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles.
+        includeInBundle = false
+    }
     lint {
-        checkReleaseBuilds = false
-        abortOnError = false
+        // Community translations can be incomplete; Android falls back to English.
+        // Keep reporting missing strings without blocking release builds.
+        warning += "MissingTranslation"
     }
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 dependencies {
-    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.activity:activity-compose:1.9.3")
-    implementation("androidx.core:core-ktx:1.15.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.animation)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.material.kolor)
+    implementation(libs.aboutlibraries.core)
+    ksp(libs.androidx.room.compiler)
+    testImplementation(libs.junit)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.junit)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+aboutLibraries {
+    offlineMode = true
+    collect {
+        includeTestVariants = false
+        fetchRemoteLicense = false
+        fetchRemoteFunding = false
+    }
+    export {
+        excludeFields.add("License.content")
+    }
 }

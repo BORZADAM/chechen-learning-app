@@ -2,58 +2,80 @@ name: Build APK
 
 on:
   push:
-    branches: [launcher]
+    branches: [launcher, grace]
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.11.1
+          java-version: 21
 
       - name: Build
         id: build
         continue-on-error: true
         run: |
           set -o pipefail
-          gradle --no-daemon assembleRelease 2>&1 | tee build.log
+          chmod +x gradlew
+          ./gradlew --no-daemon --no-configuration-cache assembleRelease 2>&1 | tee build.log
 
-      - name: Publish build log
+      - name: Collect results
         if: always()
         run: |
-          mkdir ci-out && cd ci-out
-          echo "${{ steps.build.outcome }} run=${{ github.run_number }} sha=${{ github.sha }}" > status.txt
-          grep -nE "^e: |error:|FAILED|What went wrong" -A8 ../build.log | head -400 > errors.txt || true
-          tail -150 ../build.log > tail.txt || true
+          mkdir ci-out
+          echo "${{ steps.build.outcome }} ${{ github.ref_name }} sha=${{ github.sha }}" > ci-out/status.txt
+          grep -nE "^e: |error:|FAILED|What went wrong" -A8 build.log | head -400 > ci-out/errors.txt || true
+          tail -150 build.log > ci-out/tail.txt || true
+          ls -la app/build/outputs/apk/release/ > ci-out/outputs.txt 2>&1 || true
+          cp app/build/outputs/apk/release/*.apk ci-out/app.apk 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ci-out
+          path: ci-out
+
+  publish:
+    needs: build
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ci-out
+          path: ci-out
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if [ -f ci-out/app.apk ]; then
+            mv ci-out/app.apk trail-launcher.apk
+            gh release create "v${{ github.run_number }}" trail-launcher.apk \
+              --target "${{ github.sha }}" \
+              --title "Trail Launcher build ${{ github.run_number }}" \
+              --notes "Automatic build. Trail Launcher is based on Grace Launcher (GPL-3.0). See FORK-NOTES.md." \
+              --latest
+            echo "released" >> ci-out/status.txt
+          fi
+
+      - name: Publish build log
+        run: |
+          cd ci-out
+          rm -f app.apk
           git init -q -b ci-log
           git add .
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "ci log"
           git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-log
-
-      - name: Release
-        if: steps.build.outcome == 'success'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cp app/build/outputs/apk/release/app-release.apk trail-launcher.apk
-          gh release create "v${{ github.run_number }}" trail-launcher.apk \
-            --target "${{ github.sha }}" \
-            --title "Trail Launcher build ${{ github.run_number }}" \
-            --notes "Automatic build. Download trail-launcher.apk and open it on your phone to install or update." \
-            --latest
-
-      - name: Fail if build failed
-        if: steps.build.outcome != 'success'
-        run: exit 1
